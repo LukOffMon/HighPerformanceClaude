@@ -1,0 +1,27 @@
+name: validate
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate skill, manifests, agents, commands and dist zip
+        run: python3 tools/validate.py
+      - name: Smoke-test scripts on this repo
+        run: |
+          python3 skills/high-performance/scripts/repo_brief.py .
+          python3 skills/high-performance/scripts/checks.py || test $? -eq 2
+      - name: Smoke-test installer
+        run: |
+          HOME="$(mktemp -d)" bash -c './install.sh && test -f "$HOME/.claude/skills/high-performance/SKILL.md" && ./install.sh --uninstall'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: high-performance-skill
+          path: dist/high-performance.zip

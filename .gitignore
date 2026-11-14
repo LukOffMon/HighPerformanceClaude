@@ -1,0 +1,7 @@
+dist/*
+!dist/high-performance.zip
+__pycache__/
+*.pyc
+.DS_Store
+.claude/handoff.md
+shot-*.png
