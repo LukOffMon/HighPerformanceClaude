@@ -2,7 +2,11 @@
 
 This repo **is** the High-Performance Claude plugin. When this repo is attached or open, apply the skill in `skills/high-performance/SKILL.md` to all work here, and to any other code the user asks about in this session.
 
+When the user says **Iceberg** (or "modo iceberg"), also apply `skills/iceberg/SKILL.md`: map the hidden part of the task and show an ICEBERG BRIEF before building.
+
 ## Layout
+- `skills/iceberg/` — Iceberg mode (pre-flight descent + self-brief), triggered by the word "Iceberg"
+- `site/iceberg.html` — source of the Iceberg explainer page (published as a claude.ai Artifact)
 - `skills/high-performance/` — the skill (SKILL.md is always loaded; `references/` load on demand; `scripts/` are stdlib-only Python)
 - `agents/` — `hpc-scout`, `hpc-critic`
 - `commands/` — slash commands (`/hpc:<name>` as a plugin, `/hpc-<name>` via install.sh)
@@ -11,7 +15,7 @@ This repo **is** the High-Performance Claude plugin. When this repo is attached 
 
 ## Commands
 - Validate everything: `python3 tools/validate.py`
-- Rebuild the claude.ai zip after any change under `skills/`: `python3 tools/package.py`
+- Rebuild the claude.ai zips after any change under `skills/`: `python3 tools/package.py`
 - Official plugin check: `claude plugin validate .`
 
 ## Rules for editing the skill

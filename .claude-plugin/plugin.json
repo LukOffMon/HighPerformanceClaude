@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "hpc",
   "displayName": "High-Performance Claude",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Elite operating discipline for software work: fewer tokens, fewer mistakes, deliberate option weighing and verify-before-claim. Core skill plus token-saving scripts (repo brief, verification ladder), a cheap scout agent, an adversarial critic agent, and commands for plan, options, ship, debug, review, vibecoding, handoff and project memory.",
   "author": {
     "name": "LukOffMon",
