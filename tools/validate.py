@@ -129,9 +129,10 @@ def check_agents_and_commands() -> None:
 
 
 def check_dist() -> None:
-    res = subprocess.run([sys.executable, str(ROOT / "tools/package.py"), "--check"], capture_output=True, text=True)
-    if res.returncode != 0:
-        err(res.stdout.strip() or res.stderr.strip())
+    for tool in ("package.py", "build_site.py"):
+        res = subprocess.run([sys.executable, str(ROOT / "tools" / tool), "--check"], capture_output=True, text=True)
+        if res.returncode != 0:
+            err(res.stdout.strip() or res.stderr.strip())
 
 
 def main() -> int:

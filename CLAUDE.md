@@ -16,6 +16,7 @@ When the user says **Iceberg** (or "modo iceberg"), also apply `skills/iceberg/S
 ## Commands
 - Validate everything: `python3 tools/validate.py`
 - Rebuild the claude.ai zips after any change under `skills/`: `python3 tools/package.py`
+- Rebuild the GitHub Pages site after any change to `site/iceberg.html`: `python3 tools/build_site.py`
 - Official plugin check: `claude plugin validate .`
 
 ## Rules for editing the skill
