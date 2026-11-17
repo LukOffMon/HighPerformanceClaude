@@ -83,7 +83,7 @@ Escribe **`Iceberg`** antes de tu tarea (o usa `/hpc:iceberg <tarea>`). Claude b
 
 Luego ejecuta parte por parte, verificando cada una, sin repetir lo que falla y sin declarar "listo" lo que no vio funcionar.
 
-Sitio explicativo (iceberg animado en el Antártico): https://claude.ai/artifact/9gLYV1dNmJsneZvMYfmcpT — fuente en `site/iceberg.html`.
+Sitio explicativo (iceberg animado en el Antártico): https://lukoffmon.github.io/HighPerformanceClaude/ — fuente en `site/iceberg.html`, publicado desde `docs/` con GitHub Pages.
 
 ---
 
