@@ -49,6 +49,10 @@ body {
 }
 .brand p { margin: 10px 0 0; color: var(--muted); font-size: 0.95rem; max-width: 26rem; text-wrap: balance; }
 .brand p b { color: var(--ink); font-weight: 600; }
+@media (min-width: 721px) {
+  .hud { transition: padding-right .45s cubic-bezier(.2, .8, .2, 1); }
+  body.panel-open .hud { padding-right: calc(min(460px, 100%) + 16px); z-index: 6; }
+}
 .hud-actions { pointer-events: auto; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .btn {
   font: 500 0.85rem/1 var(--f-body); color: var(--ink);
@@ -239,6 +243,7 @@ body {
         <li><b>Entregable:</b> código, un archivo, un enlace, una respuesta, un diff.</li>
         <li><b>Para quién:</b> tú en la terminal, tus usuarios en el móvil, otro agente, CI.</li>
         <li><b>Dónde vive:</b> la rama, la carpeta, la URL.</li>
+        <li><b>Cuánta profundidad:</b> una errata no lleva brief; una app nueva lleva el descenso completo.</li>
       </ul>
       <p>Si esta frase no sale clara, la tarea todavía no se entiende, y empezar a programar sería adivinar.</p>` },
     { id: "intencion", n: "3", name: "Lo que quisiste decir", depth: "−60 m", y0: 320, y1: 470,
@@ -263,6 +268,8 @@ body {
         <li>Problemas en tu petición, en el código existente o en el enfoque obvio.</li>
         <li>Las que están dentro del alcance se aplican; las demás se te ofrecen en una línea al final.</li>
       </ul>
+      <h3>Herramientas</h3>
+      <p>En tareas grandes, <code>/hpc:setup</code> detecta tu stack y lo que ya tienes, y recomienda solo lo que falta: servidores MCP como Playwright para ver la interfaz o Context7 para documentación actual, plugins útiles y permisos seguros para que Claude no te pida confirmación en cada test. No instala nada sin tu sí.</p>
       <h3>Opciones</h3>
       <p>Si una decisión es cara de deshacer (base de datos, librería, arquitectura), compara al menos dos opciones con criterios explícitos y elige una.</p>` },
     { id: "brief", n: "5", name: "Tu prompt, reescrito", depth: "−200 m", y0: 610, y1: 760,
@@ -291,6 +298,8 @@ Open:    ninguna</pre>
         <li>Delegar barridos amplios a un agente barato de solo lectura y quedarse con las conclusiones.</li>
         <li>Respuestas que empiezan por el resultado, sin preámbulo.</li>
       </ul>
+      <h3>Memoria en Obsidian</h3>
+      <p>Con <code>/hpc:obsidian</code>, Iceberg crea una carpeta <code>Claude/</code> en tu vault: tu perfil, una nota por proyecto, los briefs y las lecciones aprendidas. Al empezar una tarea lee solo un resumen con límite de líneas, así no repites tus preferencias ni pagas dos veces por el mismo error. Nunca recorre el vault entero.</p>
       <p>El ahorro real depende de la tarea. Donde más se nota es en repos grandes y tareas largas, que es donde explorar sin plan sale más caro.</p>` },
     { id: "acero", n: "7", name: "El lecho de acero", depth: "−300 m", y0: 870, y1: 990,
       html: `<h2 id="p-title">Ejecutar sin rendirse y sin mentir</h2>
@@ -311,6 +320,11 @@ Open:    ninguna</pre>
     <div class="cmd"><pre>/plugin marketplace add LukOffMon/HighPerformanceClaude</pre><button class="copy" type="button">Copiar</button></div>
     <div class="cmd"><pre>/plugin install hpc@high-performance-claude</pre><button class="copy" type="button">Copiar</button></div>
     <p>Después escribe <code>Iceberg: tu tarea</code> o usa el comando <code>/hpc:iceberg tu tarea</code>.</p>
+    <h3>Primeros pasos recomendados</h3>
+    <div class="cmd"><pre>/hpc:obsidian</pre><button class="copy" type="button">Copiar</button></div>
+    <p>Conecta tu vault de Obsidian y rellena tu perfil una sola vez.</p>
+    <div class="cmd"><pre>/hpc:setup</pre><button class="copy" type="button">Copiar</button></div>
+    <p>Revisa herramientas y permisos para el proyecto actual.</p>
     <h3>Adjuntando el repo</h3>
     <p>Adjunta <code>LukOffMon/HighPerformanceClaude</code> a tu sesión o proyecto. Su <code>CLAUDE.md</code> le indica a Claude que active Iceberg cuando digas la palabra.</p>
     <h3>claude.ai</h3>
@@ -756,11 +770,13 @@ Open:    ninguna</pre>
   }
   function showPanel() {
     panel.classList.add("open");
+    document.body.classList.add("panel-open");
     panel.setAttribute("aria-hidden", "false");
     document.getElementById("p-close").focus({ preventScroll: true });
   }
   function close() {
     panel.classList.remove("open");
+    document.body.classList.remove("panel-open");
     panel.setAttribute("aria-hidden", "true");
     active = null;
     try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}

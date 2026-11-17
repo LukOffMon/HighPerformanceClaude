@@ -1,6 +1,6 @@
 ---
 name: hpc-critic
-description: Adversarial, read-only reviewer with fresh eyes. Use after non-trivial changes (T2), before claiming done, or to stress-test a plan or design. Give it the goal, the acceptance criteria and the diff or plan; it returns only verified findings ranked by severity, each with a concrete failure scenario and fix.
+description: Adversarial read-only reviewer with fresh eyes. Use after non-trivial changes, before claiming done, or to stress-test a plan. Give it the goal, acceptance criteria and diff or plan; it returns verified findings by severity, each with a failure scenario and fix.
 tools: Read, Grep, Glob, Bash
 ---
 

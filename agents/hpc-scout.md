@@ -1,6 +1,6 @@
 ---
 name: hpc-scout
-description: Cheap, fast, read-only codebase reconnaissance. Use for wide searches whose raw output would flood the main context - where is X defined, who calls Y, how is Z configured, which files touch a feature, what conventions a module follows. Returns compact file:line findings, never file dumps.
+description: Cheap, fast, read-only codebase reconnaissance for wide searches that would flood the main context - where X is defined, who calls Y, how Z is configured, which files touch a feature. Returns compact file:line findings, never file dumps.
 tools: Read, Grep, Glob, Bash
 model: haiku
 ---

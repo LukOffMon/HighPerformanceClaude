@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.2.0] — 2026-11-17
+### Added
+- Obsidian memory: `skills/iceberg/scripts/vault.py` (init a `Claude/` workspace with profile, projects, briefs, lessons and templates; capped `context`; keyword `recall`; `save`, `lesson`, `project`). New `/hpc:obsidian` command.
+- Toolbelt: `skills/iceberg/scripts/toolbelt.py` detects the stack and installed MCP servers/plugins, recommends only missing tools with install commands, and merges a safe permission allowlist/denylist into `.claude/settings.json` on request. New `/hpc:setup` command and `references/toolbelt.md`.
+- `tools/token_report.py`: always-on / on-trigger / on-demand token cost, with budgets enforced by the validator.
+- Eval scenarios 13–17 for Iceberg; CI smoke tests for the new scripts; installer check for the iceberg skill; CI uploads every claude.ai zip.
+### Changed
+- Iceberg skill rewritten: depth now matches the task (no brief for trivial work, 3-line brief for standard, full brief for deep), memory and toolbelt steps, no duplication of the high-performance skill. ~18% shorter.
+- Descriptions trimmed: always-on cost down from ~810 to ~660 tokens despite two new commands.
+- The validator runs `--help` on every script and resolves command references against every skill.
+
 ## [1.1.0] — 2026-11-17
 ### Added
 - `iceberg` skill: say "Iceberg" and Claude maps the hidden part of a task (surface → waterline → depths → bedrock), rewrites the request into a ≤15-line ICEBERG BRIEF with acceptance checks and a token budget, then executes in verified slices.

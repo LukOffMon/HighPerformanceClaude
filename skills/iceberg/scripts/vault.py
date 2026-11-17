@@ -371,4 +371,7 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except BrokenPipeError:  # reader closed early (e.g. `| head`, `grep -q`)
+        sys.exit(0)

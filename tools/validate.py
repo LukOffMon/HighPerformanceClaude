@@ -78,8 +78,7 @@ def check_skill(skill_dir: Path) -> None:
             compile(script.read_text(encoding="utf-8"), str(script), "exec")
         except SyntaxError as exc:
             err(f"{script.relative_to(ROOT)}: does not compile: {exc}")
-    for script in ("repo_brief.py", "checks.py"):
-        path = skill_dir / "scripts" / script
+    for path in sorted((skill_dir / "scripts").glob("*.py")):
         if path.exists():
             res = subprocess.run([sys.executable, str(path), "--help"], capture_output=True, text=True)
             if res.returncode != 0:
@@ -124,12 +123,12 @@ def check_agents_and_commands() -> None:
         if "${ARGUMENTS" in text:
             err(f"{cmd.relative_to(ROOT)}: shell-style ${{ARGUMENTS…}} is not expanded; use $ARGUMENTS")
         for ref in re.findall(r"`(references/[\w.-]+\.md)`", text):
-            if not (ROOT / "skills/high-performance" / ref).exists():
+            if not any((d / ref).exists() for d in (ROOT / "skills").iterdir()):
                 err(f"{cmd.relative_to(ROOT)}: mentions missing {ref}")
 
 
 def check_dist() -> None:
-    for tool in ("package.py", "build_site.py"):
+    for tool in ("package.py", "build_site.py", "token_report.py"):
         res = subprocess.run([sys.executable, str(ROOT / "tools" / tool), "--check"], capture_output=True, text=True)
         if res.returncode != 0:
             err(res.stdout.strip() or res.stderr.strip())

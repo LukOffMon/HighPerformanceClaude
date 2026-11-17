@@ -1,6 +1,6 @@
 ---
 name: high-performance
-description: Elite operating discipline for software work. Makes Claude spend fewer tokens, make fewer mistakes, weigh options before committing, and verify before claiming done. Use for ANY coding task in any language or stack - building apps or features from a vague idea (vibecoding), fixing bugs, debugging, refactoring, code review, architecture or library choices, migrations, performance, project setup, and long multi-step agentic work in a repository. Also use when the user asks for best quality, pro or ultra mode, to do it right, to think harder, or complains about wasted tokens, regressions, hallucinated APIs, half-finished work or loops.
+description: Senior-engineer discipline for any coding task - fewer tokens, fewer mistakes, options weighed, verified before done. Use for building apps or features (including vibecoding from a vague idea), bugs, debugging, refactors, code review, architecture or library choices, migrations, performance, setup and long agentic work. Also when the user asks for best quality or complains about wasted tokens, regressions, invented APIs, half-done work or loops.
 ---
 
 # High-Performance Mode

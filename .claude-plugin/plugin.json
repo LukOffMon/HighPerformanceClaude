@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "hpc",
   "displayName": "High-Performance Claude",
-  "version": "1.1.0",
-  "description": "Elite operating discipline for software work: fewer tokens, fewer mistakes, deliberate option weighing and verify-before-claim. Core skill plus token-saving scripts (repo brief, verification ladder), a cheap scout agent, an adversarial critic agent, and commands for plan, options, ship, debug, review, vibecoding, handoff and project memory.",
+  "version": "1.2.0",
+  "description": "The definitive coding framework for Claude: say Iceberg and it maps the hidden part of a task, writes a compact self-brief and builds in verified slices. Fewer tokens, fewer mistakes. Obsidian memory, toolbelt check (MCP servers, plugins, safe permissions), senior-engineer skill, scout and critic agents, and commands for plan, ship, debug, review, vibecoding and handoff.",
   "author": {
     "name": "LukOffMon",
     "url": "https://github.com/LukOffMon"
@@ -21,6 +21,9 @@
     "debugging",
     "code-review",
     "decision-making",
-    "vibecoding"
+    "vibecoding",
+    "obsidian",
+    "iceberg",
+    "mcp"
   ]
 }

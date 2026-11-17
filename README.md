@@ -74,14 +74,36 @@ Si adjuntas este repositorio a una sesión o a un proyecto, el `CLAUDE.md` de la
 
 ## 🧊 Iceberg
 
-Escribe **`Iceberg`** antes de tu tarea (o usa `/hpc:iceberg <tarea>`). Claude baja por la petición antes de tocar nada:
+Escribe **`Iceberg`** antes de tu tarea (o usa `/hpc:iceberg <tarea>`). Claude baja por la petición antes de tocar nada, con la profundidad que pide la tarea: una errata no lleva brief, un cambio normal lleva 3 líneas y una app nueva lleva el descenso completo.
 
-1. **Superficie** — qué pediste, en una frase, y qué se entrega.
-2. **Línea de flotación** — lo que quisiste decir: requisitos implícitos, restricciones del repo, ambigüedades resueltas con evidencia.
-3. **Profundidades** — riesgos, puntos donde es fácil equivocarse, áreas de mejora y opciones comparadas.
-4. **Lecho** — reescribe tu prompt como un `ICEBERG BRIEF` de ≤15 líneas con criterios comprobables, presupuesto de tokens y plan por partes.
+1. **Memoria** — si conectaste Obsidian, lee tu perfil, la nota del proyecto y las lecciones recientes (resumen con límite de líneas).
+2. **Superficie** — qué pediste, en una frase, y qué se entrega.
+3. **Línea de flotación** — lo que quisiste decir: requisitos implícitos, restricciones del repo, ambigüedades resueltas con evidencia.
+4. **Profundidades** — riesgos, puntos donde es fácil equivocarse, áreas de mejora y opciones comparadas.
+5. **Herramientas** — en tareas grandes, revisa qué servidores MCP, plugins y permisos le faltan a este proyecto.
+6. **Lecho** — reescribe tu prompt como un `ICEBERG BRIEF` de ≤15 líneas con criterios comprobables, presupuesto de tokens y plan por partes.
 
-Luego ejecuta parte por parte, verificando cada una, sin repetir lo que falla y sin declarar "listo" lo que no vio funcionar.
+Luego ejecuta parte por parte, verificando cada una, sin repetir lo que falla y sin declarar "listo" lo que no vio funcionar. Al terminar guarda el brief y las lecciones en tu vault.
+
+### Conectar Obsidian (`/hpc:obsidian`)
+
+Crea en tu vault una carpeta `Claude/` y te pregunta lo justo para rellenar tu perfil:
+
+```
+Claude/
+├── README.md        qué es cada cosa
+├── Profile.md       idioma, stack, estilo (Claude lo lee en cada tarea; ≤40 líneas)
+├── Lessons.md       una línea por error que no debe repetirse
+├── Projects/        una nota por proyecto: stack, comandos, decisiones, trampas
+├── Briefs/          cada ICEBERG BRIEF con su resultado + Index.md
+└── Templates/       plantillas Brief / Project / Lesson (plugin Templates de Obsidian)
+```
+
+Encuentra el vault solo, leyendo la configuración de Obsidian (macOS, Windows, Linux, Flatpak y Snap); también puedes indicarlo con `OBSIDIAN_VAULT=/ruta`. Nunca sobrescribe notas existentes ni escribe fuera de `Claude/`, salvo `.obsidian/templates.json` si no existe. Para ahorrar tokens, Claude nunca recorre el vault: usa `vault.py context` (resumen con límite) y `vault.py recall` (las mejores coincidencias, 3 líneas cada una).
+
+### Herramientas y permisos (`/hpc:setup`)
+
+Detecta tu stack y lo que ya tienes instalado, y recomienda solo lo que falta para ese proyecto: Context7 (documentación de la versión instalada), Playwright (ver y probar la interfaz), GitHub, Supabase, Sentry, Stripe, con su comando de instalación. Propone además una lista de permisos seguros (git de solo lectura, búsquedas, y los scripts de build, lint y test del proyecto) y bloquea leer `.env`, el force-push y `git reset --hard`. No instala ni escribe nada sin tu sí.
 
 Sitio explicativo (iceberg animado en el Antártico): https://lukoffmon.github.io/HighPerformanceClaude/ — fuente en `site/iceberg.html`, publicado desde `docs/` con GitHub Pages.
 
@@ -102,6 +124,9 @@ Sitio explicativo (iceberg animado en el Antártico): https://lukoffmon.github.i
 | `/hpc:vibe <idea>` | Modo vibecoding: idea → producto completo, pulido y funcionando, con capturas |
 | `/hpc:debug <síntoma>` | Depuración científica: reproducir → aislar → hipótesis → causa raíz → arreglo → test de regresión |
 | `/hpc:review [objetivo]` | Revisión del diff con hallazgos verificados por gravedad (con `path:línea`) |
+| `/hpc:iceberg <tarea>` | Modo Iceberg: descenso adaptado a la tarea → brief → construcción verificada por partes |
+| `/hpc:obsidian` | Conecta tu vault de Obsidian como memoria de Claude (perfil, proyectos, briefs, lecciones) |
+| `/hpc:setup` | Revisa qué MCP, plugins y permisos le faltan al proyecto y los propone |
 | `/hpc:handoff` | Guarda el estado de la sesión para retomarla tras una compactación o en otra sesión |
 | `/hpc:memory` | Crea o ajusta un `CLAUDE.md` mínimo para que las próximas sesiones arranquen rápido |
 
@@ -178,7 +203,9 @@ En [`evals/scenarios.md`](evals/scenarios.md) hay 12 escenarios para comparar se
 
 ```bash
 python3 tools/validate.py     # valida frontmatter, límites, enlaces, manifiestos, agentes, comandos, zip
-python3 tools/package.py      # regenera dist/high-performance.zip (determinista)
+python3 tools/package.py      # regenera dist/*.zip, uno por skill (determinista)
+python3 tools/build_site.py   # regenera docs/index.html desde site/iceberg.html
+python3 tools/token_report.py # coste en tokens: siempre cargado / al activarse / bajo demanda
 claude plugin validate .      # validación oficial de Claude Code
 ```
 
@@ -187,15 +214,20 @@ La CI (`.github/workflows/validate.yml`) ejecuta todo esto en cada push. Reglas 
 ```
 .
 ├── .claude-plugin/        plugin.json · marketplace.json · icon.png
+├── skills/iceberg/
+│   ├── SKILL.md
+│   ├── references/        depth-probes.md · toolbelt.md
+│   └── scripts/           vault.py (Obsidian) · toolbelt.py (herramientas y permisos)
 ├── skills/high-performance/
 │   ├── SKILL.md
 │   ├── references/        11 guías bajo demanda
 │   └── scripts/           repo_brief.py · checks.py · hpc_detect.py
 ├── agents/                hpc-scout.md · hpc-critic.md
-├── commands/              9 comandos
-├── tools/                 validate.py · package.py
+├── commands/              12 comandos
+├── tools/                 validate.py · package.py · build_site.py · token_report.py
 ├── evals/                 scenarios.md
-├── dist/                  high-performance.zip (para claude.ai)
+├── site/ · docs/          sitio del iceberg (fuente · GitHub Pages)
+├── dist/                  high-performance.zip · iceberg.zip (para claude.ai)
 ├── install.sh
 └── CLAUDE.md
 ```
