@@ -18,10 +18,17 @@ jobs:
         run: |
           python3 skills/high-performance/scripts/repo_brief.py .
           python3 skills/high-performance/scripts/checks.py || test $? -eq 2
+          python3 skills/iceberg/scripts/toolbelt.py .
+          V="$(mktemp -d)"; export OBSIDIAN_VAULT="$V"
+          python3 skills/iceberg/scripts/vault.py init
+          echo "Goal: smoke test" | python3 skills/iceberg/scripts/vault.py save --title "CI smoke" --project hpc
+          python3 skills/iceberg/scripts/vault.py lesson "CI lesson" --project hpc
+          python3 skills/iceberg/scripts/vault.py context hpc | grep -q "CI lesson"
+          python3 skills/iceberg/scripts/vault.py recall "smoke test" | grep -q "CI smoke"
       - name: Smoke-test installer
         run: |
-          HOME="$(mktemp -d)" bash -c './install.sh && test -f "$HOME/.claude/skills/high-performance/SKILL.md" && ./install.sh --uninstall'
+          HOME="$(mktemp -d)" bash -c './install.sh && test -f "$HOME/.claude/skills/high-performance/SKILL.md" && test -f "$HOME/.claude/skills/iceberg/scripts/vault.py" && ./install.sh --uninstall'
       - uses: actions/upload-artifact@v4
         with:
-          name: high-performance-skill
-          path: dist/high-performance.zip
+          name: claude-ai-skills
+          path: dist/*.zip

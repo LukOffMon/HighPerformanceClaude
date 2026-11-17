@@ -51,7 +51,7 @@ for f in "${SRC}"/commands/*.md; do cp "$f" "${TARGET}/commands/hpc-$(basename "
 
 echo "✓ installed into ${TARGET}"
 echo "  skill:    skills/high-performance (loads automatically on coding tasks, or /high-performance)"
-echo "  skill:    skills/iceberg (say \"Iceberg\" to dive below the surface of a task)"
+echo "  skill:    skills/iceberg (say \"Iceberg\"; /hpc-obsidian connects your vault, /hpc-setup checks tools)"
 echo "  agents:   hpc-scout, hpc-critic"
 echo "  commands: $(for f in "${SRC}"/commands/*.md; do printf '/hpc-%s ' "$(basename "$f" .md)"; done)"
 echo "  Restart Claude Code (or start a new session) to pick it up."
