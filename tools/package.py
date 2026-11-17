@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build dist/high-performance.zip for uploading the skill to claude.ai (Settings → Capabilities → Skills).
+"""Build dist/<skill>.zip for every skill under skills/, for uploading to claude.ai (Settings → Capabilities → Skills).
 
 Deterministic: fixed timestamps and sorted entries, so the zip only changes when the skill changes.
   python3 tools/package.py          build
@@ -11,18 +11,17 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SKILL = ROOT / "skills" / "high-performance"
-OUT = ROOT / "dist" / "high-performance.zip"
+SKILLS = sorted(p for p in (ROOT / "skills").iterdir() if (p / "SKILL.md").exists())
 SKIP = {"__pycache__", ".DS_Store"}
 
 
-def build() -> bytes:
+def build(skill: Path) -> bytes:
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
-        for path in sorted(SKILL.rglob("*")):
+        for path in sorted(skill.rglob("*")):
             if path.is_dir() or any(part in SKIP for part in path.parts) or path.suffix == ".pyc":
                 continue
-            arc = Path("high-performance") / path.relative_to(SKILL)
+            arc = Path(skill.name) / path.relative_to(skill)
             info = zipfile.ZipInfo(arc.as_posix(), date_time=(2026, 1, 1, 0, 0, 0))
             info.external_attr = (0o755 if path.suffix in (".py", ".sh") else 0o644) << 16
             info.compress_type = zipfile.ZIP_DEFLATED
@@ -31,17 +30,21 @@ def build() -> bytes:
 
 
 def main() -> int:
-    data = build()
-    if "--check" in sys.argv:
-        if not OUT.exists() or OUT.read_bytes() != data:
-            print("dist/high-performance.zip is stale — run: python3 tools/package.py")
-            return 1
-        print("dist/high-performance.zip is up to date")
-        return 0
-    OUT.parent.mkdir(exist_ok=True)
-    OUT.write_bytes(data)
-    print(f"wrote {OUT.relative_to(ROOT)} ({len(data):,} bytes)")
-    return 0
+    stale = 0
+    for skill in SKILLS:
+        data, out = build(skill), ROOT / "dist" / f"{skill.name}.zip"
+        rel = out.relative_to(ROOT)
+        if "--check" in sys.argv:
+            if not out.exists() or out.read_bytes() != data:
+                print(f"{rel} is stale — run: python3 tools/package.py")
+                stale = 1
+            continue
+        out.parent.mkdir(exist_ok=True)
+        out.write_bytes(data)
+        print(f"wrote {rel} ({len(data):,} bytes)")
+    if "--check" in sys.argv and not stale:
+        print("dist/ is up to date")
+    return stale
 
 
 if __name__ == "__main__":

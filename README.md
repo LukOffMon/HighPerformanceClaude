@@ -72,6 +72,21 @@ Si adjuntas este repositorio a una sesión o a un proyecto, el `CLAUDE.md` de la
 
 ---
 
+## 🧊 Iceberg
+
+Escribe **`Iceberg`** antes de tu tarea (o usa `/hpc:iceberg <tarea>`). Claude baja por la petición antes de tocar nada:
+
+1. **Superficie** — qué pediste, en una frase, y qué se entrega.
+2. **Línea de flotación** — lo que quisiste decir: requisitos implícitos, restricciones del repo, ambigüedades resueltas con evidencia.
+3. **Profundidades** — riesgos, puntos donde es fácil equivocarse, áreas de mejora y opciones comparadas.
+4. **Lecho** — reescribe tu prompt como un `ICEBERG BRIEF` de ≤15 líneas con criterios comprobables, presupuesto de tokens y plan por partes.
+
+Luego ejecuta parte por parte, verificando cada una, sin repetir lo que falla y sin declarar "listo" lo que no vio funcionar.
+
+Sitio explicativo (iceberg animado en el Antártico): https://claude.ai/artifact/9gLYV1dNmJsneZvMYfmcpT — fuente en `site/iceberg.html`.
+
+---
+
 ## Uso
 
 **Automático.** La skill se activa sola en cualquier tarea de programación. No tienes que hacer nada.

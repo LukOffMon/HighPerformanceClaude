@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "High-Performance Claude: an operating discipline that makes Claude cheaper, more accurate and more deliberate on any coding task.",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "plugins": [
     {
       "name": "hpc",
       "source": "./",
       "description": "Elite operating discipline for software work: fewer tokens, fewer mistakes, deliberate option weighing and verify-before-claim. Skill, scripts, agents and commands.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "LukOffMon"
       },

@@ -1,0 +1,839 @@
+<title>Iceberg</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Iceberg: di una palabra y Claude explora todo lo que hay debajo de tu petición antes de construir.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one full-screen Antarctic scene on canvas; HTML labels ride the iceberg; a glass panel opens per layer. Single deliberate dark world. */
+:root {
+  --abyss: #03101f;
+  --deep: #072a45;
+  --ice: #e9f6ff;
+  --glacier: #9fd6f2;
+  --aurora: #6ff2c3;
+  --ember: #ffb38a;
+  --ink: #e6f1f8;
+  --muted: #94b3c7;
+  --glass: rgba(6, 26, 44, 0.78);
+  --line: rgba(159, 214, 242, 0.22);
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body {
+  background: var(--abyss);
+  color: var(--ink);
+  font: 15px/1.6 var(--f-body);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+#scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; cursor: default; touch-action: manipulation; }
+#scene.over { cursor: pointer; }
+
+.hud {
+  position: fixed; top: 0; left: 0; right: 0;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 18px);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+  pointer-events: none; z-index: 3;
+}
+.brand { pointer-events: auto; max-width: 30rem; }
+.brand h1 {
+  margin: 0; font: 800 clamp(2.1rem, 6vw, 3.6rem)/0.9 var(--f-display);
+  letter-spacing: 0.02em; color: var(--ice);
+  text-shadow: 0 0 30px rgba(111, 242, 195, 0.25);
+}
+.brand p { margin: 10px 0 0; color: var(--muted); font-size: 0.95rem; max-width: 26rem; text-wrap: balance; }
+.brand p b { color: var(--ink); font-weight: 600; }
+.hud-actions { pointer-events: auto; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.btn {
+  font: 500 0.85rem/1 var(--f-body); color: var(--ink);
+  background: rgba(6, 26, 44, 0.55); border: 1px solid var(--line);
+  padding: 10px 14px; border-radius: 999px; cursor: pointer;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  transition: border-color .2s, background .2s;
+}
+.btn:hover { border-color: var(--glacier); background: rgba(10, 44, 70, 0.75); }
+.btn.primary { background: var(--ice); color: var(--abyss); border-color: var(--ice); font-weight: 600; }
+.btn.primary:hover { background: #fff; }
+.btn:focus-visible, .tag:focus-visible, .x:focus-visible, .copy:focus-visible { outline: 2px solid var(--aurora); outline-offset: 3px; }
+
+.coords {
+  position: fixed; z-index: 3; pointer-events: none;
+  left: max(16px, env(safe-area-inset-left, 0px));
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 14px);
+  font: 400 0.72rem/1.5 var(--f-mono); color: var(--muted); letter-spacing: 0.04em;
+}
+.coords strong { color: var(--glacier); font-weight: 500; }
+
+.gauge {
+  position: fixed; z-index: 2; pointer-events: none;
+  right: max(14px, env(safe-area-inset-right, 0px));
+  font: 400 0.68rem/1 var(--f-mono); color: var(--muted);
+}
+.gauge .tick { position: absolute; right: 0; display: flex; align-items: center; gap: 6px; white-space: nowrap; transform: translateY(-50%); }
+.gauge .tick::after { content: ""; width: 10px; height: 1px; background: var(--line); }
+.gauge .tick.major::after { width: 18px; background: rgba(159, 214, 242, 0.5); }
+.gauge .tick.on { color: var(--aurora); }
+.gauge .tick.on::after { background: var(--aurora); width: 24px; }
+
+.tags { position: fixed; inset: 0; z-index: 2; pointer-events: none; }
+.tag {
+  position: absolute; left: 0; top: 0; pointer-events: auto;
+  display: flex; align-items: center; gap: 8px;
+  font: 500 0.78rem/1 var(--f-body); color: var(--ink);
+  background: rgba(3, 16, 31, 0.6); border: 1px solid var(--line);
+  border-radius: 999px; padding: 7px 11px 7px 8px; cursor: pointer; white-space: nowrap;
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  transition: border-color .2s, background .2s, color .2s;
+  will-change: transform;
+}
+.tag .n {
+  display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(159, 214, 242, 0.16); color: var(--glacier);
+  font: 500 0.68rem/1 var(--f-mono);
+}
+.tag:hover, .tag.on { border-color: var(--aurora); color: #fff; background: rgba(5, 40, 50, 0.8); }
+.tag.on .n, .tag:hover .n { background: var(--aurora); color: var(--abyss); }
+.tag.tip .n { animation: ping 2.4s ease-out infinite; }
+@keyframes ping { 0% { box-shadow: 0 0 0 0 rgba(111, 242, 195, .7); } 80%, 100% { box-shadow: 0 0 0 12px rgba(111, 242, 195, 0); } }
+.tag .lbl { display: inline; }
+
+.panel {
+  position: fixed; z-index: 5; top: 0; right: 0; bottom: 0;
+  width: min(460px, 100%);
+  background: var(--glass);
+  backdrop-filter: blur(18px) saturate(1.2); -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  border-left: 1px solid var(--line);
+  transform: translateX(105%); transition: transform .45s cubic-bezier(.2, .8, .2, 1);
+  display: flex; flex-direction: column;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+}
+.panel.open { transform: none; }
+.panel-head {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 18px 22px 0;
+}
+.eyebrow { font: 500 0.72rem/1 var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--aurora); }
+.x {
+  width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--line);
+  background: transparent; color: var(--ink); cursor: pointer; font-size: 18px; line-height: 1;
+}
+.x:hover { border-color: var(--glacier); }
+.panel-body { overflow-y: auto; padding: 10px 22px 22px; flex: 1; min-height: 0; overscroll-behavior: contain; }
+.panel h2 { font: 800 clamp(1.7rem, 4vw, 2.2rem)/1.05 var(--f-display); margin: 6px 0 14px; color: var(--ice); text-wrap: balance; }
+.panel h3 { font: 600 0.78rem/1.2 var(--f-mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--glacier); margin: 22px 0 8px; }
+.panel p { margin: 0 0 12px; color: var(--ink); max-width: 62ch; }
+.panel .lead { font-size: 1.05rem; color: #fff; }
+.panel ul, .panel ol { margin: 0 0 12px; padding-left: 1.2em; display: grid; gap: 6px; }
+.panel li::marker { color: var(--aurora); }
+.panel em { color: var(--glacier); font-style: normal; }
+.panel code { font: 0.85em var(--f-mono); background: rgba(159, 214, 242, 0.1); padding: 1px 5px; border-radius: 4px; color: var(--ice); }
+.panel pre {
+  font: 0.78rem/1.55 var(--f-mono); color: var(--ice);
+  background: rgba(1, 8, 16, 0.6); border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px 14px; overflow-x: auto; margin: 0 0 12px; white-space: pre;
+}
+.cmd { display: flex; align-items: stretch; gap: 8px; margin: 0 0 10px; }
+.cmd pre { flex: 1; min-width: 0; margin: 0; }
+.copy {
+  flex: none; font: 500 0.75rem/1 var(--f-body); color: var(--ink); cursor: pointer;
+  background: transparent; border: 1px solid var(--line); border-radius: 10px; padding: 0 12px;
+}
+.copy:hover { border-color: var(--aurora); }
+.stat { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 4px 0 16px; }
+.stat div { border: 1px solid var(--line); border-radius: 10px; padding: 10px; }
+.stat b { display: block; font: 800 1.4rem/1 var(--f-display); color: var(--aurora); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 0.75rem; color: var(--muted); line-height: 1.3; display: block; margin-top: 6px; }
+.panel-foot {
+  display: flex; justify-content: space-between; gap: 10px;
+  padding: 14px 22px 18px; border-top: 1px solid var(--line);
+}
+.panel-foot .btn { flex: 1; }
+.panel-foot .btn[disabled] { opacity: .35; cursor: default; }
+
+@media (max-width: 720px) {
+  .panel {
+    top: auto; left: 0; width: 100%; height: min(74%, 640px);
+    border-left: 0; border-top: 1px solid var(--line); border-radius: 20px 20px 0 0;
+    transform: translateY(105%);
+    padding-left: env(safe-area-inset-left, 0px);
+  }
+  .panel.open { transform: none; }
+  .tag .lbl { display: none; }
+  .tag { padding: 6px; }
+  .tag.tip .lbl, .tag.on .lbl { display: inline; }
+  .tag.tip, .tag.on { padding: 7px 11px 7px 8px; }
+  .gauge { display: none; }
+  .panel pre { white-space: pre-wrap; font-size: 0.72rem; }
+  .brand p { font-size: 0.85rem; }
+  .coords { font-size: 0.64rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .panel { transition: none; }
+  .tag.tip .n { animation: none; }
+}
+</style>
+
+<canvas id="scene" aria-label="Iceberg animado flotando en el océano Antártico. Cada franja del hielo abre una explicación." role="img"></canvas>
+
+<header class="hud">
+  <div class="brand">
+    <h1>ICEBERG</h1>
+    <p>Lo que escribes es la punta. <b>Lo que Claude analiza antes de actuar está debajo.</b> Toca el hielo y baja capa por capa.</p>
+  </div>
+  <div class="hud-actions">
+    <button class="btn" id="dive" type="button">Bajar ↓</button>
+    <button class="btn primary" id="install" type="button">Instalar</button>
+  </div>
+</header>
+
+<div class="gauge" id="gauge" aria-hidden="true"></div>
+<nav class="tags" id="tags" aria-label="Capas del iceberg"></nav>
+
+<div class="coords" aria-hidden="true">
+  <strong>77°51′S 166°40′E</strong> · Mar de Ross<br>
+  agua −1,8 °C · ~90 % bajo la superficie
+</div>
+
+<aside class="panel" id="panel" role="dialog" aria-modal="false" aria-labelledby="p-title" aria-hidden="true">
+  <div class="panel-head">
+    <span class="eyebrow" id="p-eyebrow"></span>
+    <button class="x" id="p-close" type="button" aria-label="Cerrar">×</button>
+  </div>
+  <div class="panel-body" id="p-body"></div>
+  <div class="panel-foot">
+    <button class="btn" id="p-prev" type="button">↑ Subir</button>
+    <button class="btn" id="p-next" type="button">Bajar ↓</button>
+  </div>
+</aside>
+
+<script>
+(() => {
+  "use strict";
+
+  /* ---------- Content: one entry per layer, top to bottom (iceberg units, waterline at y=240) ---------- */
+  const LAYERS = [
+    { id: "punta", n: "1", name: "La punta", depth: "+ 40 m", y0: 20, y1: 240,
+      html: `<h2 id="p-title">Una palabra: Iceberg</h2>
+      <p class="lead">Escribes <code>Iceberg</code> junto a tu tarea. Eso es lo que se ve. Debajo, Claude hace todo el trabajo que normalmente nadie hace antes de empezar.</p>
+      <p>Iceberg es una skill para Claude incluida en el plugin <em>High-Performance Claude</em>. Antes de tocar código, Claude baja por la tarea: qué pediste, qué quisiste decir, qué puede salir mal y cuál es el mejor marco de trabajo. Después reescribe tu petición como un brief propio y la ejecuta verificando cada paso.</p>
+      <div class="stat">
+        <div><b>1</b><span>palabra para activarlo</span></div>
+        <div><b>≤15</b><span>líneas de brief antes de actuar</span></div>
+        <div><b>4</b><span>capas de análisis</span></div>
+      </div>
+      <h3>Cómo se ve</h3>
+      <pre>Iceberg: añade login con Google a mi app</pre>
+      <p>Claude responde primero con un <em>ICEBERG BRIEF</em> corto y luego construye, por partes, comprobando cada una.</p>` },
+    { id: "flotacion", n: "2", name: "Superficie", depth: "0 m", y0: 240, y1: 320,
+      html: `<h2 id="p-title">Qué pediste, en una frase</h2>
+      <p class="lead">Lo primero es reformular la petición con sus propias palabras y nombrar el entregable.</p>
+      <ul>
+        <li><b>Entregable:</b> código, un archivo, un enlace, una respuesta, un diff.</li>
+        <li><b>Para quién:</b> tú en la terminal, tus usuarios en el móvil, otro agente, CI.</li>
+        <li><b>Dónde vive:</b> la rama, la carpeta, la URL.</li>
+      </ul>
+      <p>Si esta frase no sale clara, la tarea todavía no se entiende, y empezar a programar sería adivinar.</p>` },
+    { id: "intencion", n: "3", name: "Lo que quisiste decir", depth: "−60 m", y0: 320, y1: 470,
+      html: `<h2 id="p-title">Los requisitos que nadie escribe</h2>
+      <p class="lead">La mayoría de los fallos vienen de lo que no se dijo. Claude lo busca en el código, en el repo y en el contexto antes de preguntarte.</p>
+      <ul>
+        <li><b>El objetivo detrás del objetivo:</b> por qué lo quieres y cómo sabrás que funcionó.</li>
+        <li><b>Requisitos implícitos:</b> estados de error y carga, móvil, accesibilidad, tests, enlaces que funcionen.</li>
+        <li><b>Restricciones:</b> reglas del repo (<code>CLAUDE.md</code>), versiones instaladas, permisos, presupuesto.</li>
+        <li><b>Ambigüedades:</b> se resuelven con evidencia o con un valor por defecto sensato. Pregunta solo si cambia lo que se construye: máximo 3 preguntas, cada una con su recomendación.</li>
+      </ul>` },
+    { id: "riesgos", n: "4", name: "Riesgos y mejoras", depth: "−130 m", y0: 470, y1: 610,
+      html: `<h2 id="p-title">Lo que podría hundirlo</h2>
+      <p class="lead">Antes de construir, Claude busca dónde se va a equivocar y qué se puede hacer mejor.</p>
+      <h3>Riesgos</h3>
+      <ul>
+        <li>Acciones irreversibles: borrar, publicar, desplegar, enviar. Se confirman antes.</li>
+        <li>APIs recordadas de otra versión, supuestos sin comprobar, trabajo a medias.</li>
+      </ul>
+      <h3>Áreas de mejora</h3>
+      <ul>
+        <li>Problemas en tu petición, en el código existente o en el enfoque obvio.</li>
+        <li>Las que están dentro del alcance se aplican; las demás se te ofrecen en una línea al final.</li>
+      </ul>
+      <h3>Opciones</h3>
+      <p>Si una decisión es cara de deshacer (base de datos, librería, arquitectura), compara al menos dos opciones con criterios explícitos y elige una.</p>` },
+    { id: "brief", n: "5", name: "Tu prompt, reescrito", depth: "−200 m", y0: 610, y1: 760,
+      html: `<h2 id="p-title">El prompt que habrías escrito sabiéndolo todo</h2>
+      <p class="lead">Todo lo anterior se comprime en un brief de 15 líneas como máximo. Es la instrucción que Claude se da a sí mismo.</p>
+      <pre>ICEBERG BRIEF
+Goal:    usuarios entran con Google sin crear contraseña
+Deliver: rama feat/google-login + PR
+Accept:  1) botón visible en /login (captura)
+         2) callback crea sesión (test e2e pasa)
+         3) usuario existente no se duplica (test)
+Hidden:  estado de error, logout, variables en .env.example
+Risks:   no subir secretos; no tocar tabla users en prod
+Options: next-auth v5 (ya instalado) frente a OAuth manual
+Budget:  leer auth/*.ts por rangos; 1 búsqueda en lote
+Slices:  1) botón+ruta  2) callback  3) tests
+Open:    ninguna</pre>
+      <p>Las palabras vagas se convierten en comprobaciones: <em>"rápido"</em> pasa a ser <em>"primer render en menos de 1 s"</em>; <em>"que funcione"</em> pasa a ser <em>"el comando X termina en 0 y muestra Y"</em>.</p>` },
+    { id: "tokens", n: "6", name: "Economía de tokens", depth: "−260 m", y0: 760, y1: 870,
+      html: `<h2 id="p-title">Menos tokens, la misma calidad</h2>
+      <p class="lead">El brief incluye un presupuesto. Pensar antes de leer evita gastar contexto explorando a ciegas.</p>
+      <ul>
+        <li>Buscar antes de leer; leer rangos antes que archivos completos.</li>
+        <li>Agrupar las llamadas independientes en un solo turno.</li>
+        <li>Nunca releer lo que ya está en contexto ni repetir tu mensaje de vuelta.</li>
+        <li>Delegar barridos amplios a un agente barato de solo lectura y quedarse con las conclusiones.</li>
+        <li>Respuestas que empiezan por el resultado, sin preámbulo.</li>
+      </ul>
+      <p>El ahorro real depende de la tarea. Donde más se nota es en repos grandes y tareas largas, que es donde explorar sin plan sale más caro.</p>` },
+    { id: "acero", n: "7", name: "El lecho de acero", depth: "−300 m", y0: 870, y1: 990,
+      html: `<h2 id="p-title">Ejecutar sin rendirse y sin mentir</h2>
+      <p class="lead">Con el marco listo, Claude construye por partes y no da nada por hecho que no haya visto funcionar.</p>
+      <ol>
+        <li><b>Compuerta:</b> no empieza hasta que cada criterio tenga una forma de comprobarse.</li>
+        <li><b>Por partes:</b> cada parte termina ejecutable y verificada, con evidencia.</li>
+        <li><b>Acero, no terquedad:</b> tras dos intentos fallidos con el mismo enfoque, vuelve al brief y cambia de enfoque. Nunca repite lo que falla.</li>
+        <li><b>Honestidad:</b> si algo queda bloqueado, lo dice con lo que intentó. No declara "listo" para escapar de un problema difícil.</li>
+      </ol>
+      <h3>El informe final</h3>
+      <p>Qué se entregó, qué se verificó y cómo, qué queda sin verificar, y hasta 3 mejoras encontradas bajo la superficie.</p>` },
+  ];
+
+  const INSTALL = `<h2 id="p-title">Cómo usar Iceberg</h2>
+    <p class="lead">Instala el plugin o adjunta el repo y escribe <code>Iceberg</code> antes de tu tarea.</p>
+    <h3>Claude Code · plugin</h3>
+    <div class="cmd"><pre>/plugin marketplace add LukOffMon/HighPerformanceClaude</pre><button class="copy" type="button">Copiar</button></div>
+    <div class="cmd"><pre>/plugin install hpc@high-performance-claude</pre><button class="copy" type="button">Copiar</button></div>
+    <p>Después escribe <code>Iceberg: tu tarea</code> o usa el comando <code>/hpc:iceberg tu tarea</code>.</p>
+    <h3>Adjuntando el repo</h3>
+    <p>Adjunta <code>LukOffMon/HighPerformanceClaude</code> a tu sesión o proyecto. Su <code>CLAUDE.md</code> le indica a Claude que active Iceberg cuando digas la palabra.</p>
+    <h3>claude.ai</h3>
+    <p>Sube <code>dist/iceberg.zip</code> del repositorio en <em>Settings → Capabilities → Skills</em>.</p>
+    <h3>Instalador manual</h3>
+    <div class="cmd"><pre>curl -fsSL https://raw.githubusercontent.com/LukOffMon/HighPerformanceClaude/main/install.sh | bash</pre><button class="copy" type="button">Copiar</button></div>
+    <p><a href="https://github.com/LukOffMon/HighPerformanceClaude" target="_blank" rel="noopener" style="color:var(--aurora)">Ver el repositorio en GitHub ↗</a></p>`;
+
+  /* ---------- Geometry ---------- */
+  const W_ICE = 800, H_ICE = 1000, WATER_ICE = 240;
+  // outline of the iceberg (clockwise), iceberg units
+  const OUTLINE = [
+    [232, 240], [262, 206], [300, 204], [318, 150], [356, 112], [384, 34], [414, 96], [448, 74],
+    [486, 22], [520, 102], [552, 128], [574, 186], [612, 240],
+    [662, 286], [722, 352], [758, 446], [744, 540], [770, 632], [716, 742], [662, 818],
+    [588, 902], [500, 972], [420, 990], [344, 962], [250, 900], [170, 818], [104, 716],
+    [58, 610], [74, 506], [46, 418], [98, 330], [168, 278]
+  ];
+  const LEDGE = { x0: 262, x1: 300, y: 206 }; // penguins stand here
+
+  // seeded RNG so the facets look the same every visit
+  let seed = 7;
+  const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+
+  const pointIn = (x, y, poly) => {
+    let inside = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const [xi, yi] = poly[i], [xj, yj] = poly[j];
+      if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) inside = !inside;
+    }
+    return inside;
+  };
+
+  // Bowyer–Watson Delaunay triangulation for a low-poly ice look
+  const triangulate = (pts) => {
+    const big = [[-4000, -4000], [4000, -4000], [0, 6000]];
+    const all = pts.concat(big);
+    const n = pts.length;
+    let tris = [[n, n + 1, n + 2]];
+    const circ = (t) => {
+      const [ax, ay] = all[t[0]], [bx, by] = all[t[1]], [cx, cy] = all[t[2]];
+      const d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by));
+      const ux = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d;
+      const uy = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d;
+      return [ux, uy, (ax - ux) ** 2 + (ay - uy) ** 2];
+    };
+    tris = tris.map((t) => ({ t, c: circ(t) }));
+    for (let i = 0; i < n; i++) {
+      const [px, py] = all[i];
+      const bad = [], keep = [];
+      for (const tr of tris) ((px - tr.c[0]) ** 2 + (py - tr.c[1]) ** 2 < tr.c[2] ? bad : keep).push(tr);
+      const edges = new Map();
+      for (const { t } of bad) {
+        for (const [a, b] of [[t[0], t[1]], [t[1], t[2]], [t[2], t[0]]]) {
+          const k = a < b ? a + "_" + b : b + "_" + a;
+          edges.set(k, edges.has(k) ? null : [a, b]);
+        }
+      }
+      for (const e of edges.values()) if (e) { const t = [e[0], e[1], i]; keep.push({ t, c: circ(t) }); }
+      tris = keep;
+    }
+    return tris.map((x) => x.t).filter((t) => t.every((v) => v < n)).map((t) => t.map((v) => all[v]));
+  };
+
+  const facetPts = OUTLINE.map((p) => p.slice());
+  for (let i = 0; i < 150; i++) {
+    const x = 40 + rnd() * 740, y = 20 + rnd() * 975;
+    if (pointIn(x, y, OUTLINE)) facetPts.push([x, y]);
+  }
+  for (let x = 236; x <= 608; x += 31) facetPts.push([x, WATER_ICE + (rnd() - 0.5) * 6]);
+  const FACETS = triangulate(facetPts).map((tri) => {
+    const cx = (tri[0][0] + tri[1][0] + tri[2][0]) / 3, cy = (tri[0][1] + tri[1][1] + tri[2][1]) / 3;
+    // fake normal: cross product with a random tilt, lit from upper left
+    const ux = tri[1][0] - tri[0][0], uy = tri[1][1] - tri[0][1], vx = tri[2][0] - tri[0][0], vy = tri[2][1] - tri[0][1];
+    const tilt = Math.sign(ux * vy - uy * vx) * 0.12;
+    const light = 0.68 + (rnd() - 0.5) * 0.34 - (cx - 400) / 1400 + tilt;
+    return { tri, cx, cy, light: Math.max(0.25, Math.min(1, light)) };
+  });
+
+  const outlinePath = new Path2D();
+  OUTLINE.forEach(([x, y], i) => (i ? outlinePath.lineTo(x, y) : outlinePath.moveTo(x, y)));
+  outlinePath.closePath();
+
+  /* ---------- Canvas + sizing ---------- */
+  const cv = document.getElementById("scene");
+  const ctx = cv.getContext("2d");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let W = 0, H = 0, DPR = 1, waterY = 0, S = 1, iceX = 0, iceY = 0;
+  let stars = [], snow = [], bubbles = [], motes = [];
+
+  const resize = () => {
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+    const narrow = W < 720;
+    waterY = Math.round(H * (narrow ? 0.4 : 0.37));
+    S = Math.min((W * (narrow ? 0.96 : 0.62)) / W_ICE, (waterY - (narrow ? 150 : 110)) / (WATER_ICE - 20), (H - waterY - 18) / (H_ICE - WATER_ICE));
+    S = Math.max(S, 0.22);
+    iceX = W / 2 - (W_ICE / 2) * S - (narrow ? 0 : W * 0.04);
+    iceY = waterY - WATER_ICE * S;
+    stars = Array.from({ length: Math.round((W * waterY) / 5200) }, () => ({ x: Math.random() * W, y: Math.random() * waterY * 0.8, r: Math.random() * 1.2 + 0.2, p: Math.random() * 6.28 }));
+    snow = Array.from({ length: Math.round(W / 9) }, () => ({ x: Math.random() * W, y: Math.random() * waterY, r: Math.random() * 1.6 + 0.4, v: Math.random() * 0.4 + 0.25, d: Math.random() * 6.28 }));
+    bubbles = Array.from({ length: Math.round(W / 26) }, () => newBubble(true));
+    motes = Array.from({ length: Math.round(W / 6) }, () => ({ x: Math.random() * W, y: waterY + Math.random() * (H - waterY), r: Math.random() * 1.1 + 0.3, v: Math.random() * 0.12 + 0.03 }));
+    buildGauge();
+  };
+  const newBubble = (anywhere) => ({
+    x: iceX + (90 + Math.random() * 620) * S, y: anywhere ? waterY + Math.random() * (H - waterY) : H + 10,
+    r: Math.random() * 2.8 + 0.8, v: Math.random() * 0.6 + 0.35, w: Math.random() * 6.28
+  });
+
+  /* ---------- Bobbing transform ---------- */
+  let t0 = performance.now(), T = 0;
+  const bob = () => ({ dy: reduce ? 0 : Math.sin(T * 0.7) * 5 + Math.sin(T * 0.31) * 3, rot: reduce ? 0 : Math.sin(T * 0.45) * 0.006 });
+  const toIce = (px, py) => {
+    const { dy, rot } = bob();
+    const cx = iceX + 400 * S, cy = waterY + dy;
+    const x = px - cx, y = py - cy;
+    const c = Math.cos(-rot), s = Math.sin(-rot);
+    return [(x * c - y * s) / S + 400, (x * s + y * c) / S + WATER_ICE];
+  };
+  const fromIce = (ix, iy) => {
+    const { dy, rot } = bob();
+    const x = (ix - 400) * S, y = (iy - WATER_ICE) * S;
+    const c = Math.cos(rot), s = Math.sin(rot);
+    return [x * c - y * s + iceX + 400 * S, x * s + y * c + waterY + dy];
+  };
+
+  /* ---------- Drawing ---------- */
+  const lerp = (a, b, k) => a + (b - a) * k;
+
+  const drawSky = () => {
+    const g = ctx.createLinearGradient(0, 0, 0, waterY);
+    g.addColorStop(0, "#050b22"); g.addColorStop(0.45, "#11264a"); g.addColorStop(0.8, "#3b5a7a"); g.addColorStop(1, "#c9a7a4");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, waterY + 2);
+    // low sun glow
+    const sx = W * 0.82, sy = waterY - 6;
+    const sg = ctx.createRadialGradient(sx, sy, 0, sx, sy, W * 0.4);
+    sg.addColorStop(0, "rgba(255,190,150,0.55)"); sg.addColorStop(0.25, "rgba(255,160,130,0.18)"); sg.addColorStop(1, "rgba(255,160,130,0)");
+    ctx.fillStyle = sg; ctx.fillRect(0, 0, W, waterY);
+    for (const s of stars) {
+      const a = (0.35 + 0.65 * Math.abs(Math.sin(T * 0.8 + s.p))) * (1 - s.y / (waterY * 0.85));
+      ctx.fillStyle = `rgba(230,240,255,${a})`;
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, 6.28); ctx.fill();
+    }
+  };
+
+  const drawAurora = () => {
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    const bands = [
+      { y: 0.16, amp: 26, hue: "111,242,195", a: 0.22, sp: 0.22, len: 0.0042 },
+      { y: 0.24, amp: 34, hue: "90,200,255", a: 0.13, sp: -0.16, len: 0.0031 },
+      { y: 0.11, amp: 18, hue: "180,140,255", a: 0.09, sp: 0.12, len: 0.0056 },
+    ];
+    for (const b of bands) {
+      const base = waterY * b.y + 30;
+      for (let x = -20; x < W + 20; x += 4) {
+        const y = base + Math.sin(x * b.len + T * b.sp * 3) * b.amp + Math.sin(x * b.len * 2.3 - T * b.sp * 2) * b.amp * 0.4;
+        const h = 70 + Math.sin(x * 0.01 + T * 0.5) * 30;
+        const flick = 0.6 + 0.4 * Math.sin(x * 0.03 + T * 1.3);
+        const g = ctx.createLinearGradient(0, y - h, 0, y + 10);
+        g.addColorStop(0, `rgba(${b.hue},0)`); g.addColorStop(0.75, `rgba(${b.hue},${b.a * flick})`); g.addColorStop(1, `rgba(${b.hue},0)`);
+        ctx.fillStyle = g; ctx.fillRect(x, y - h, 4, h + 10);
+      }
+    }
+    ctx.restore();
+  };
+
+  const drawShelf = () => {
+    // distant tabular ice shelf on the horizon
+    ctx.fillStyle = "#a9bfd3";
+    ctx.beginPath(); ctx.moveTo(0, waterY);
+    const segs = [[0, 14], [0.08, 16], [0.1, 22], [0.22, 21], [0.24, 12], [0.31, 12], [0.33, 18], [0.36, 18], [0.37, 0], [0.62, 0], [0.63, 9], [0.7, 10], [0.72, 16], [0.86, 15], [0.88, 8], [1, 8]];
+    for (const [fx, h] of segs) ctx.lineTo(fx * W, waterY - h);
+    ctx.lineTo(W, waterY); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = "rgba(255,210,190,0.35)";
+    ctx.fillRect(0.72 * W, waterY - 16, 0.14 * W, 2);
+    ctx.fillRect(0.1 * W, waterY - 22, 0.12 * W, 2);
+  };
+
+  const drawWater = () => {
+    const g = ctx.createLinearGradient(0, waterY, 0, H);
+    g.addColorStop(0, "#0e5878"); g.addColorStop(0.18, "#0a3d5e"); g.addColorStop(0.6, "#06233d"); g.addColorStop(1, "#020a17");
+    ctx.fillStyle = g; ctx.fillRect(0, waterY, W, H - waterY);
+    // god rays
+    ctx.save(); ctx.globalCompositeOperation = "lighter";
+    for (let i = 0; i < 7; i++) {
+      const x = ((i + 0.5) / 7) * W + Math.sin(T * 0.3 + i * 1.7) * 40;
+      const wTop = 30 + (i % 3) * 22, skew = 120 + (i % 2) * 80;
+      const rg = ctx.createLinearGradient(0, waterY, 0, waterY + (H - waterY) * 0.85);
+      const a = 0.05 + 0.03 * Math.sin(T * 0.6 + i);
+      rg.addColorStop(0, `rgba(160,230,255,${a})`); rg.addColorStop(1, "rgba(160,230,255,0)");
+      ctx.fillStyle = rg;
+      ctx.beginPath(); ctx.moveTo(x, waterY); ctx.lineTo(x + wTop, waterY);
+      ctx.lineTo(x + wTop + skew + 60, H); ctx.lineTo(x + skew - 60, H); ctx.closePath(); ctx.fill();
+    }
+    ctx.restore();
+  };
+
+  // a humpback drifting far behind the iceberg
+  const drawWhale = () => {
+    const period = 60, k = (T % period) / period;
+    const x = lerp(-260, W + 260, k), y = waterY + (H - waterY) * 0.72 + Math.sin(T * 0.4) * 10;
+    ctx.save(); ctx.translate(x, y); ctx.scale(Math.max(0.6, S * 1.3), Math.max(0.6, S * 1.3));
+    ctx.fillStyle = "rgba(1,12,24,0.55)";
+    ctx.beginPath();
+    ctx.moveTo(90, 0);
+    ctx.bezierCurveTo(70, -26, -30, -30, -90, -8);
+    ctx.quadraticCurveTo(-120, 0, -140, -18);
+    ctx.lineTo(-150, -2); ctx.lineTo(-142, 0); ctx.lineTo(-150, 6); ctx.lineTo(-140, 16);
+    ctx.quadraticCurveTo(-118, 2, -90, 8);
+    ctx.bezierCurveTo(-30, 26, 60, 22, 90, 0);
+    ctx.fill();
+    const fin = Math.sin(T * 1.2) * 6;
+    ctx.beginPath(); ctx.moveTo(30, 10); ctx.quadraticCurveTo(10, 40 + fin, -20, 44 + fin); ctx.quadraticCurveTo(0, 26, 10, 12); ctx.fill();
+    ctx.restore();
+  };
+
+  const drawIceberg = () => {
+    const { dy, rot } = bob();
+    ctx.save();
+    ctx.translate(iceX + 400 * S, waterY + dy);
+    ctx.rotate(rot);
+    ctx.scale(S, S);
+    ctx.translate(-400, -WATER_ICE);
+
+    ctx.save();
+    ctx.clip(outlinePath);
+    for (const f of FACETS) {
+      const above = f.cy < WATER_ICE;
+      const L = f.light;
+      const r = Math.round(lerp(above ? 150 : 70, 248, L)), gg = Math.round(lerp(above ? 196 : 150, 253, L)), b = 255;
+      ctx.fillStyle = `rgb(${r},${gg},${b})`;
+      ctx.strokeStyle = `rgba(${r},${gg},${b},1)`;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath(); ctx.moveTo(...f.tri[0]); ctx.lineTo(...f.tri[1]); ctx.lineTo(...f.tri[2]); ctx.closePath();
+      ctx.fill(); ctx.stroke();
+    }
+    // glowing core: the "framework" inside
+    const core = ctx.createRadialGradient(410, 640, 10, 410, 640, 330);
+    core.addColorStop(0, "rgba(111,242,195,0.35)"); core.addColorStop(1, "rgba(111,242,195,0)");
+    ctx.fillStyle = core; ctx.fillRect(0, 300, 800, 700);
+
+    // selected / hovered layer highlight
+    const hl = [hover, active].filter((v) => v !== null);
+    for (const i of new Set(hl)) {
+      const L = LAYERS[i];
+      const strong = i === active;
+      ctx.fillStyle = strong ? "rgba(111,242,195,0.22)" : "rgba(255,255,255,0.14)";
+      ctx.fillRect(0, L.y0, 800, L.y1 - L.y0);
+      ctx.fillStyle = strong ? "rgba(111,242,195,0.9)" : "rgba(255,255,255,0.6)";
+      ctx.fillRect(0, L.y0, 800, 2 / S);
+      if (strong && !reduce) {
+        const sy = L.y0 + ((T * 60) % (L.y1 - L.y0));
+        const sg = ctx.createLinearGradient(0, sy - 30, 0, sy);
+        sg.addColorStop(0, "rgba(111,242,195,0)"); sg.addColorStop(1, "rgba(111,242,195,0.35)");
+        ctx.fillStyle = sg; ctx.fillRect(0, sy - 30, 800, 30);
+      }
+    }
+    // faint strata lines between layers
+    ctx.strokeStyle = "rgba(255,255,255,0.18)"; ctx.lineWidth = 1 / S; ctx.setLineDash([6 / S, 8 / S]);
+    for (const L of LAYERS.slice(1)) { ctx.beginPath(); ctx.moveTo(0, L.y0); ctx.lineTo(800, L.y0); ctx.stroke(); }
+    ctx.setLineDash([]);
+    ctx.restore();
+
+    // rim light
+    ctx.strokeStyle = "rgba(255,255,255,0.55)"; ctx.lineWidth = 2 / S; ctx.stroke(outlinePath);
+
+    drawPenguins();
+    ctx.restore();
+  };
+
+  const drawPenguins = () => {
+    const ps = [[268, 0], [281, 1.4], [292, 2.6]];
+    for (const [x, ph] of ps) {
+      const hop = reduce ? 0 : Math.max(0, Math.sin(T * 1.6 + ph * 2.2)) ** 8 * 3;
+      const y = LEDGE.y - hop;
+      ctx.fillStyle = "#0d1626";
+      ctx.beginPath(); ctx.ellipse(x, y - 8, 4.2, 8, 0, 0, 6.28); ctx.fill();
+      ctx.beginPath(); ctx.arc(x, y - 17, 3.2, 0, 6.28); ctx.fill();
+      ctx.fillStyle = "#f2f6fb";
+      ctx.beginPath(); ctx.ellipse(x + 1.2, y - 7, 2.4, 6, 0, 0, 6.28); ctx.fill();
+      ctx.fillStyle = "#ffb347";
+      ctx.beginPath(); ctx.moveTo(x + 2.8, y - 17.5); ctx.lineTo(x + 5.6, y - 16.6); ctx.lineTo(x + 2.8, y - 15.8); ctx.fill();
+    }
+  };
+
+  const drawWaterTint = () => {
+    // the sea in front of the submerged mass
+    const g = ctx.createLinearGradient(0, waterY, 0, H);
+    g.addColorStop(0, "rgba(10,80,120,0.28)"); g.addColorStop(0.5, "rgba(4,36,64,0.5)"); g.addColorStop(1, "rgba(2,10,24,0.72)");
+    ctx.fillStyle = g; ctx.fillRect(0, waterY + 2, W, H - waterY);
+    // caustic shimmer just below the surface
+    ctx.save(); ctx.globalCompositeOperation = "lighter";
+    ctx.strokeStyle = "rgba(170,235,255,0.08)"; ctx.lineWidth = 1;
+    for (let r = 0; r < 4; r++) {
+      ctx.beginPath();
+      for (let x = 0; x <= W; x += 12) {
+        const y = waterY + 14 + r * 16 + Math.sin(x * 0.03 + T * 1.4 + r) * 4 + Math.sin(x * 0.011 - T * 0.9) * 3;
+        x ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.stroke();
+    }
+    ctx.restore();
+  };
+
+  const drawSurface = () => {
+    // wavy surface line with foam hugging the iceberg
+    const [lx] = fromIce(232, 240), [rx] = fromIce(612, 240);
+    ctx.save();
+    ctx.lineWidth = 2;
+    for (let layer = 0; layer < 2; layer++) {
+      ctx.strokeStyle = layer ? "rgba(255,255,255,0.75)" : "rgba(150,220,255,0.45)";
+      ctx.beginPath();
+      for (let x = 0; x <= W; x += 6) {
+        const y = waterY + Math.sin(x * 0.02 + T * (1.5 + layer * 0.4)) * 2 + Math.sin(x * 0.007 - T * 0.8) * 2 + layer;
+        x ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+      }
+      ctx.stroke();
+    }
+    // foam
+    for (let i = 0; i < 26; i++) {
+      const side = i % 2 ? lx : rx;
+      const off = ((i * 37) % 60) - 30 + Math.sin(T * 1.2 + i) * 6;
+      const a = 0.35 + 0.35 * Math.sin(T * 2 + i * 1.3);
+      ctx.fillStyle = `rgba(255,255,255,${Math.max(0, a)})`;
+      ctx.beginPath(); ctx.ellipse(side + off, waterY + 1, 6 + (i % 4) * 3, 1.6, 0, 0, 6.28); ctx.fill();
+    }
+    ctx.restore();
+  };
+
+  const drawParticles = (dt) => {
+    ctx.fillStyle = "rgba(255,255,255,0.85)";
+    for (const f of snow) {
+      if (!reduce) { f.y += f.v * dt * 0.06; f.x += Math.sin(T + f.d) * 0.25; }
+      if (f.y > waterY) { f.y = -4; f.x = Math.random() * W; }
+      ctx.globalAlpha = 0.5 + 0.5 * (f.r / 2);
+      ctx.beginPath(); ctx.arc(f.x, f.y, f.r, 0, 6.28); ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "rgba(170,220,240,0.35)";
+    for (const m of motes) {
+      if (!reduce) { m.y += m.v * dt * 0.06; m.x += Math.sin(T * 0.5 + m.y * 0.02) * 0.08; }
+      if (m.y > H) { m.y = waterY + 4; m.x = Math.random() * W; }
+      ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, 6.28); ctx.fill();
+    }
+    ctx.strokeStyle = "rgba(210,245,255,0.55)"; ctx.lineWidth = 1;
+    for (let i = 0; i < bubbles.length; i++) {
+      const b = bubbles[i];
+      if (!reduce) { b.y -= b.v * dt * 0.06; b.x += Math.sin(T * 2 + b.w) * 0.3; }
+      if (b.y < waterY + 6) bubbles[i] = newBubble(false);
+      ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, 6.28); ctx.stroke();
+    }
+  };
+
+  /* ---------- Tags + gauge ---------- */
+  const tagsEl = document.getElementById("tags");
+  const gaugeEl = document.getElementById("gauge");
+  const tagEls = LAYERS.map((L, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "tag" + (i === 0 ? " tip" : "");
+    b.innerHTML = `<span class="n">${L.n}</span><span class="lbl">${L.name}</span>`;
+    b.setAttribute("aria-label", `Capa ${L.n}: ${L.name}`);
+    b.addEventListener("click", () => open(i));
+    b.addEventListener("mouseenter", () => (hover = i));
+    b.addEventListener("mouseleave", () => (hover = null));
+    tagsEl.appendChild(b);
+    return b;
+  });
+  // anchor x per layer (ice units): right edge of the band, alternate sides for air
+  const anchor = (L, i) => {
+    const y = i === 0 ? 150 : (L.y0 + L.y1) / 2;
+    let xr = 0;
+    for (let x = 799; x > 0; x -= 2) if (pointIn(x, y, OUTLINE)) { xr = x; break; }
+    return [xr, y];
+  };
+  const ANCHORS = LAYERS.map(anchor);
+
+  let gaugeTicks = [];
+  function buildGauge() {
+    gaugeEl.innerHTML = "";
+    gaugeTicks = [];
+    const metres = [0, 50, 100, 150, 200, 250, 300];
+    for (const m of metres) {
+      const t = document.createElement("div");
+      t.className = "tick" + (m % 100 === 0 ? " major" : "");
+      t.textContent = m === 0 ? "0 m" : `−${m}`;
+      const y = waterY + (m / 300) * (H - waterY - 30);
+      t.style.top = y + "px";
+      gaugeEl.appendChild(t);
+      gaugeTicks.push({ el: t, m });
+    }
+  }
+  const DEPTH_M = [-40, 0, 60, 130, 200, 260, 300];
+
+  const placeTags = () => {
+    const narrow = W < 720;
+    tagEls.forEach((el, i) => {
+      const [ax, ay] = ANCHORS[i];
+      const [x, y] = fromIce(ax, ay);
+      const w = el.offsetWidth, h = el.offsetHeight;
+      let left = x + (narrow ? -w * 0.5 - 10 * S : 14);
+      if (narrow) left = Math.min(Math.max(x - w - 6, 8), W - w - 8);
+      left = Math.min(left, W - w - (narrow ? 8 : 70));
+      el.style.transform = `translate(${Math.round(left)}px, ${Math.round(y - h / 2)}px)`;
+      el.classList.toggle("on", i === active);
+    });
+    gaugeTicks.forEach((g) => g.el.classList.toggle("on", active !== null && g.m === Math.min(300, Math.max(0, Math.round(DEPTH_M[active] / 50) * 50))));
+  };
+
+  /* ---------- Panel ---------- */
+  const panel = document.getElementById("panel");
+  const pBody = document.getElementById("p-body");
+  const pEye = document.getElementById("p-eyebrow");
+  const pPrev = document.getElementById("p-prev");
+  const pNext = document.getElementById("p-next");
+  let active = null, hover = null, lastFocus = null;
+
+  function open(i) {
+    if (!panel.classList.contains("open")) lastFocus = document.activeElement;
+    active = i;
+    const L = LAYERS[i];
+    pEye.textContent = `Capa ${L.n} de ${LAYERS.length} · ${L.depth}`;
+    pBody.innerHTML = L.html;
+    pBody.scrollTop = 0;
+    pPrev.disabled = i === 0; pNext.disabled = i === LAYERS.length - 1;
+    pPrev.hidden = pNext.hidden = false;
+    showPanel();
+    try { history.replaceState(null, "", "#" + L.id); } catch (e) {}
+  }
+  function openInstall() {
+    if (!panel.classList.contains("open")) lastFocus = document.activeElement;
+    active = null;
+    pEye.textContent = "Instalación";
+    pBody.innerHTML = INSTALL;
+    pBody.scrollTop = 0;
+    pPrev.hidden = pNext.hidden = true;
+    wireCopy();
+    showPanel();
+    try { history.replaceState(null, "", "#instalar"); } catch (e) {}
+  }
+  function showPanel() {
+    panel.classList.add("open");
+    panel.setAttribute("aria-hidden", "false");
+    document.getElementById("p-close").focus({ preventScroll: true });
+  }
+  function close() {
+    panel.classList.remove("open");
+    panel.setAttribute("aria-hidden", "true");
+    active = null;
+    try { history.replaceState(null, "", location.pathname + location.search); } catch (e) {}
+    if (lastFocus && lastFocus.focus) lastFocus.focus({ preventScroll: true });
+  }
+  function wireCopy() {
+    pBody.querySelectorAll(".copy").forEach((b) => {
+      b.addEventListener("click", () => {
+        const pre = b.previousElementSibling;
+        const done = () => { b.textContent = "Copiado"; setTimeout(() => (b.textContent = "Copiar"), 1600); };
+        const fallback = () => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent = "Seleccionado"; };
+        try { navigator.clipboard.writeText(pre.textContent).then(done, fallback); } catch (e) { fallback(); }
+      });
+    });
+  }
+  document.getElementById("p-close").addEventListener("click", close);
+  pPrev.addEventListener("click", () => active !== null && active > 0 && open(active - 1));
+  pNext.addEventListener("click", () => active !== null && active < LAYERS.length - 1 && open(active + 1));
+  document.getElementById("install").addEventListener("click", openInstall);
+  document.getElementById("dive").addEventListener("click", () => open(active === null ? 0 : Math.min(active + 1, LAYERS.length - 1)));
+  addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && panel.classList.contains("open")) close();
+    if (e.key === "ArrowDown" || e.key === "PageDown") { e.preventDefault(); open(active === null ? 0 : Math.min(active + 1, LAYERS.length - 1)); }
+    if (e.key === "ArrowUp" || e.key === "PageUp") { e.preventDefault(); if (active !== null) open(Math.max(active - 1, 0)); }
+  });
+
+  /* ---------- Pointer on the ice ---------- */
+  const layerAt = (px, py) => {
+    const [ix, iy] = toIce(px, py);
+    if (!pointIn(ix, iy, OUTLINE)) return null;
+    const i = LAYERS.findIndex((L) => iy >= L.y0 && iy < L.y1);
+    return i < 0 ? null : i;
+  };
+  cv.addEventListener("pointermove", (e) => {
+    const i = layerAt(e.clientX, e.clientY);
+    hover = i; cv.classList.toggle("over", i !== null);
+  });
+  cv.addEventListener("pointerleave", () => { hover = null; cv.classList.remove("over"); });
+  cv.addEventListener("click", (e) => {
+    const i = layerAt(e.clientX, e.clientY);
+    if (i !== null) open(i); else if (panel.classList.contains("open")) close();
+  });
+
+  /* ---------- Loop ---------- */
+  let last = performance.now();
+  const frame = (now) => {
+    const dt = Math.min(64, now - last); last = now;
+    T = (now - t0) / 1000;
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    drawSky();
+    drawAurora();
+    drawShelf();
+    drawWater();
+    drawWhale();
+    drawIceberg();
+    drawWaterTint();
+    drawSurface();
+    drawParticles(dt);
+    placeTags();
+    requestAnimationFrame(frame);
+  };
+
+  addEventListener("resize", resize);
+  resize();
+  requestAnimationFrame(frame);
+
+  const fromHash = () => {
+    const h = location.hash.slice(1);
+    if (h === "instalar") return openInstall();
+    const i = LAYERS.findIndex((L) => L.id === h);
+    if (i >= 0) open(i);
+  };
+  addEventListener("hashchange", fromHash);
+  fromHash();
+})();
+</script>
