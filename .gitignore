@@ -1,6 +1,7 @@
 dist/*
 !dist/high-performance.zip
 !dist/iceberg.zip
+!dist/cekmecon.zip
 __pycache__/
 *.pyc
 .DS_Store

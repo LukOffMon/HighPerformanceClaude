@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.3.0] — 2026-11-21
+### Added
+- **Toilet Bamboo Paper Çekmecón** (`apps/cekmecon/`): installable desktop memory app for Claude. Markdown vault (Obsidian-compatible) with SQLite FTS5 index, one drawer per project created automatically (brief, auto map, decisions, lessons, tasks, log), token-budgeted context packs, inbox organizer, lesson de-duplication, backlinks and graph. Localhost UI with Rollito, an original pixel-art assistant that narrates every step.
+- MCP bridge (`cekmecon mcp`, 8 tools) with one-time pairing: the app asks you to allow Claude once ("always" or "this session"); afterwards connections are automatic. The bridge starts the app if it is closed.
+- Installers for Windows (`install.ps1`, Start Menu + Desktop shortcuts), macOS (`.app` in ~/Applications) and Linux (`.desktop`), plus `cekmecon connect` to register with Claude Code.
+- `skills/cekmecon`: how Claude uses the app (local sessions only, ask once, then automatic).
+- `site/cekmecon.html` → `docs/cekmecon/`: spinning 3D bamboo roll that unrolls into the explainer.
+- End-to-end tests for the app (`apps/cekmecon/tests`), run in CI.
+### Changed
+- `tools/build_site.py` builds every page under `site/` and supports `/*@include*/`.
+
 ## [1.2.0] — 2026-11-17
 ### Added
 - Obsidian memory: `skills/iceberg/scripts/vault.py` (init a `Claude/` workspace with profile, projects, briefs, lessons and templates; capped `context`; keyword `recall`; `save`, `lesson`, `project`). New `/hpc:obsidian` command.
