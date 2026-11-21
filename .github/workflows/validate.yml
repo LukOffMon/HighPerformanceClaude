@@ -25,9 +25,11 @@ jobs:
           python3 skills/iceberg/scripts/vault.py lesson "CI lesson" --project hpc
           python3 skills/iceberg/scripts/vault.py context hpc | grep -q "CI lesson"
           python3 skills/iceberg/scripts/vault.py recall "smoke test" | grep -q "CI smoke"
+      - name: Çekmecón app tests (vault, organizer, HTTP app, pairing, MCP bridge)
+        run: python3 -m unittest discover -s apps/cekmecon/tests -v
       - name: Smoke-test installer
         run: |
-          HOME="$(mktemp -d)" bash -c './install.sh && test -f "$HOME/.claude/skills/high-performance/SKILL.md" && test -f "$HOME/.claude/skills/iceberg/scripts/vault.py" && ./install.sh --uninstall'
+          HOME="$(mktemp -d)" bash -c './install.sh && test -f "$HOME/.claude/skills/high-performance/SKILL.md" && test -f "$HOME/.claude/skills/iceberg/scripts/vault.py" && test -f "$HOME/.claude/skills/cekmecon/SKILL.md" && ./install.sh --uninstall'
       - uses: actions/upload-artifact@v4
         with:
           name: claude-ai-skills

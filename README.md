@@ -107,6 +107,14 @@ Detecta tu stack y lo que ya tienes instalado, y recomienda solo lo que falta pa
 
 Sitio explicativo (iceberg animado en el Antártico): https://lukoffmon.github.io/HighPerformanceClaude/ — fuente en `site/iceberg.html`, publicado desde `docs/` con GitHub Pages.
 
+## 🧻 Toilet Bamboo Paper Çekmecón
+
+Una **app de escritorio** (Windows, macOS, Linux) que le da memoria a Claude: un cajón (*çekmece* en turco) de notas Markdown que Claude ordena solo, con un cajón por proyecto, paquetes de memoria con tope de tokens, búsqueda con ranking, compatibilidad con Obsidian y **Rollito**, un asistente pixel art que narra todo lo que pasa. Se conecta a Claude Code por MCP: pide permiso una vez y desde entonces es automático.
+
+**Descargar:** [Windows (.exe)](https://github.com/LukOffMon/HighPerformanceClaude/releases/latest/download/Cekmecon-Setup-Windows.exe) · [macOS (.dmg)](https://github.com/LukOffMon/HighPerformanceClaude/releases/latest/download/Cekmecon-macOS.dmg) · [Linux (.tar.gz)](https://github.com/LukOffMon/HighPerformanceClaude/releases/latest/download/Cekmecon-Linux-x86_64.tar.gz) — programa normal, sin Python; al abrirlo se conecta solo a Claude Code.
+
+Sitio (el rollo que se desenrolla): https://lukoffmon.github.io/HighPerformanceClaude/cekmecon/ — detalles en [`apps/cekmecon/README.md`](apps/cekmecon/README.md). La skill `cekmecon` del plugin le enseña a Claude a usarla.
+
 ---
 
 ## Uso
@@ -204,7 +212,8 @@ En [`evals/scenarios.md`](evals/scenarios.md) hay 12 escenarios para comparar se
 ```bash
 python3 tools/validate.py     # valida frontmatter, límites, enlaces, manifiestos, agentes, comandos, zip
 python3 tools/package.py      # regenera dist/*.zip, uno por skill (determinista)
-python3 tools/build_site.py   # regenera docs/index.html desde site/iceberg.html
+python3 tools/build_site.py   # regenera docs/ (iceberg y cekmecon) desde site/
+python3 -m unittest discover -s apps/cekmecon/tests   # pruebas de la app Çekmecón
 python3 tools/token_report.py # coste en tokens: siempre cargado / al activarse / bajo demanda
 claude plugin validate .      # validación oficial de Claude Code
 ```
@@ -214,6 +223,8 @@ La CI (`.github/workflows/validate.yml`) ejecuta todo esto en cada push. Reglas 
 ```
 .
 ├── .claude-plugin/        plugin.json · marketplace.json · icon.png
+├── apps/cekmecon/         app de escritorio Çekmecón (Python stdlib, UI web, puente MCP, instaladores)
+├── skills/cekmecon/       cómo usa Claude la app
 ├── skills/iceberg/
 │   ├── SKILL.md
 │   ├── references/        depth-probes.md · toolbelt.md
@@ -226,8 +237,8 @@ La CI (`.github/workflows/validate.yml`) ejecuta todo esto en cada push. Reglas 
 ├── commands/              12 comandos
 ├── tools/                 validate.py · package.py · build_site.py · token_report.py
 ├── evals/                 scenarios.md
-├── site/ · docs/          sitio del iceberg (fuente · GitHub Pages)
-├── dist/                  high-performance.zip · iceberg.zip (para claude.ai)
+├── site/ · docs/          sitios del iceberg y de Çekmecón (fuente · GitHub Pages)
+├── dist/                  high-performance.zip · iceberg.zip · cekmecon.zip (para claude.ai)
 ├── install.sh
 └── CLAUDE.md
 ```

@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cekmecon"
+version = "1.0.0"
+description = "Toilet Bamboo Paper Çekmecón: a local memory drawer that Claude organizes for you (Markdown vault + MCP)."
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+dependencies = []
+
+[project.scripts]
+cekmecon = "cekmecon.__main__:main"
+
+[project.gui-scripts]
+cekmecon-app = "cekmecon.__main__:main"
+
+[tool.setuptools]
+packages = ["cekmecon", "cekmecon.ui", "cekmecon.skill"]
+
+[tool.setuptools.package-data]
+"cekmecon.ui" = ["*"]
+"cekmecon.skill" = ["*"]

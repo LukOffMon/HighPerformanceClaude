@@ -33,7 +33,7 @@ fi
 
 SKILL_DST="${TARGET}/skills/high-performance"
 if [[ "$MODE" == "uninstall" ]]; then
-  rm -rf "$SKILL_DST" "${TARGET}/skills/iceberg"
+  rm -rf "$SKILL_DST" "${TARGET}/skills/iceberg" "${TARGET}/skills/cekmecon"
   rm -f "${TARGET}"/agents/hpc-scout.md "${TARGET}"/agents/hpc-critic.md
   for f in "${SRC}"/commands/*.md; do rm -f "${TARGET}/commands/hpc-$(basename "$f")"; done
   echo "✓ removed High-Performance Claude from ${TARGET}"
@@ -45,6 +45,8 @@ rm -rf "$SKILL_DST"
 cp -R "${SRC}/skills/high-performance" "$SKILL_DST"
 rm -rf "${TARGET}/skills/iceberg"
 cp -R "${SRC}/skills/iceberg" "${TARGET}/skills/iceberg"
+rm -rf "${TARGET}/skills/cekmecon"
+cp -R "${SRC}/skills/cekmecon" "${TARGET}/skills/cekmecon"
 find "$SKILL_DST" -name '__pycache__' -type d -prune -exec rm -rf {} +
 cp "${SRC}"/agents/hpc-*.md "${TARGET}/agents/"
 for f in "${SRC}"/commands/*.md; do cp "$f" "${TARGET}/commands/hpc-$(basename "$f")"; done
@@ -52,6 +54,7 @@ for f in "${SRC}"/commands/*.md; do cp "$f" "${TARGET}/commands/hpc-$(basename "
 echo "✓ installed into ${TARGET}"
 echo "  skill:    skills/high-performance (loads automatically on coding tasks, or /high-performance)"
 echo "  skill:    skills/iceberg (say \"Iceberg\"; /hpc-obsidian connects your vault, /hpc-setup checks tools)"
+echo "  skill:    skills/cekmecon (memory app; install it from apps/cekmecon/README.md)"
 echo "  agents:   hpc-scout, hpc-critic"
 echo "  commands: $(for f in "${SRC}"/commands/*.md; do printf '/hpc-%s ' "$(basename "$f" .md)"; done)"
 echo "  Restart Claude Code (or start a new session) to pick it up."

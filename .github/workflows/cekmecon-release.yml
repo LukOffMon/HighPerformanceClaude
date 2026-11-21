@@ -1,0 +1,86 @@
+name: cekmecon-release
+
+# Builds the downloadable Çekmecón program on Windows, macOS and Linux.
+# Every push that touches the app builds and tests it; pushes to main also publish a GitHub Release,
+# which the site's download buttons point at (releases/latest/download/<file>).
+on:
+  push:
+    paths:
+      - "apps/cekmecon/**"
+      - ".github/workflows/cekmecon-release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-22.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Tests
+        run: python -m unittest discover -s apps/cekmecon/tests -v
+      - name: Install PyInstaller
+        run: python -m pip install pyinstaller==6.11.1
+      - name: Install Inno Setup
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: if (-not (Test-Path "C:\Program Files (x86)\Inno Setup 6\ISCC.exe")) { choco install innosetup -y --no-progress }
+      - name: Build
+        run: python apps/cekmecon/packaging/build.py
+      - name: Smoke-test the built program
+        shell: bash
+        env:
+          CEKMECON_HOME: ${{ runner.temp }}/cekstate
+          CEKMECON_VAULT: ${{ runner.temp }}/cekvault
+        run: |
+          case "$RUNNER_OS" in
+            Windows) EXE="apps/cekmecon/packaging/build/dist/cekmecon-cli.exe" ;;
+            macOS)   EXE="apps/cekmecon/packaging/build/dist/Cekmecon.app/Contents/MacOS/Cekmecon" ;;
+            Linux)   EXE="apps/cekmecon/packaging/build/dist/cekmecon" ;;
+          esac
+          "$EXE" --version
+          "$EXE" status
+          printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}' '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' | "$EXE" mcp > mcp-out.txt; grep -q cekmecon_open_project mcp-out.txt
+          ls -la apps/cekmecon/packaging/out
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cekmecon-${{ runner.os }}
+          path: apps/cekmecon/packaging/out/*
+
+  release:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - name: Version
+        id: v
+        run: echo "version=$(python3 -c 'import re;print(re.search(r"__version__ = \"(.+?)\"", open("apps/cekmecon/cekmecon/__init__.py").read()).group(1))')" >> "$GITHUB_OUTPUT"
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: cekmecon-v${{ steps.v.outputs.version }}
+          name: Çekmecón ${{ steps.v.outputs.version }}
+          make_latest: true
+          files: out/*
+          body: |
+            **Toilet Bamboo Paper Çekmecón** — la app de memoria para Claude.
+
+            | Sistema | Descarga |
+            |---|---|
+            | Windows 10/11 | `Cekmecon-Setup-Windows.exe` (instalador, sin admin) |
+            | macOS (Apple Silicon) | `Cekmecon-macOS.dmg` (arrastra Çekmecón a Aplicaciones; la primera vez: clic derecho → Abrir) |
+            | Linux x86_64 | `Cekmecon-Linux-x86_64.tar.gz` (descomprime y ejecuta `install-linux.sh`) |
+
+            Al abrirla por primera vez se registra sola en Claude Code. https://lukoffmon.github.io/HighPerformanceClaude/cekmecon/

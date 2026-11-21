@@ -134,6 +134,23 @@ def check_dist() -> None:
             err(res.stdout.strip() or res.stderr.strip())
 
 
+def check_cekmecon() -> None:
+    app = ROOT / "apps" / "cekmecon"
+    if not app.exists():
+        return
+    skill, copy = ROOT / "skills/cekmecon/SKILL.md", app / "cekmecon/skill/SKILL.md"
+    if not copy.exists() or skill.read_bytes() != copy.read_bytes():
+        err("apps/cekmecon/cekmecon/skill/SKILL.md must be an exact copy of skills/cekmecon/SKILL.md")
+    for py in sorted(app.rglob("*.py")):
+        try:
+            compile(py.read_text(encoding="utf-8"), str(py), "exec")
+        except SyntaxError as exc:
+            err(f"{py.relative_to(ROOT)}: does not compile: {exc}")
+    for name in ("index.html", "app.js", "style.css", "mascot.js", "logo.svg", "icon.ico", "icon.png"):
+        if not (app / "cekmecon/ui" / name).exists():
+            err(f"apps/cekmecon/cekmecon/ui/{name} is missing")
+
+
 def main() -> int:
     for skill_dir in sorted((ROOT / "skills").iterdir()):
         if skill_dir.is_dir():
@@ -141,6 +158,7 @@ def main() -> int:
     check_manifests()
     check_agents_and_commands()
     check_dist()
+    check_cekmecon()
     for w in warnings:
         print(f"warn  {w}")
     for e in errors:
