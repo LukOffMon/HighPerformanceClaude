@@ -170,8 +170,15 @@ def main() -> None:
     out = sys.stdout
 
     def send(msg):
-        out.write(json.dumps(msg, ensure_ascii=False) + "\n")
-        out.flush()
+        try:
+            out.write(json.dumps(msg, ensure_ascii=False) + "\n")
+            out.flush()
+        except (BrokenPipeError, OSError):  # the client went away: exit quietly
+            try:
+                sys.stdout = open(os.devnull, "w")
+            except OSError:
+                pass
+            raise SystemExit(0)
 
     for line in sys.stdin:
         line = line.strip()

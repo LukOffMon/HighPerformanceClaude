@@ -48,7 +48,7 @@ jobs:
           esac
           "$EXE" --version
           "$EXE" status
-          printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}' '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' | "$EXE" mcp | grep -q cekmecon_open_project
+          printf '%s\n' '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18"}}' '{"jsonrpc":"2.0","id":2,"method":"tools/list"}' | "$EXE" mcp > mcp-out.txt; grep -q cekmecon_open_project mcp-out.txt
           ls -la apps/cekmecon/packaging/out
       - uses: actions/upload-artifact@v4
         with:
