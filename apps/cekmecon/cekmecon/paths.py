@@ -52,3 +52,18 @@ def vault_dir() -> Path:
 def running_file() -> Path:
     """Written by the app while it runs: {port, pid, instance}. The MCP bridge finds the app through it."""
     return state_dir() / "running.json"
+
+
+def self_command(*args: str, console: bool = True) -> list:
+    """How to run Çekmecón itself: the installed program (frozen build) or `python -m cekmecon`.
+
+    On Windows the download ships two programs: Cekmecon.exe (window, no console) and cekmecon-cli.exe
+    (console, used for the MCP stdio bridge and `connect`)."""
+    import sys
+    if getattr(sys, "frozen", False):
+        exe = Path(sys.executable)
+        if sys.platform == "win32":
+            cli, gui = exe.with_name("cekmecon-cli.exe"), exe.with_name("Cekmecon.exe")
+            exe = cli if console and cli.exists() else gui if gui.exists() else exe
+        return [str(exe), *args]
+    return [sys.executable, "-m", "cekmecon", *args]

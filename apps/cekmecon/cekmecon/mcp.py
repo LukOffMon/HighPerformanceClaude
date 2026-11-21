@@ -85,7 +85,7 @@ def find_port(start_if_closed: bool = True) -> int:
             flags = {"creationflags": 0x00000008 | 0x00000200} if sys.platform == "win32" else {"start_new_session": True}
             pkg_parent = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
             env = {**os.environ, "PYTHONPATH": pkg_parent + os.pathsep + os.environ.get("PYTHONPATH", "")}
-            subprocess.Popen([sys.executable, "-m", "cekmecon", "--no-window"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+            subprocess.Popen(paths.self_command("--no-window", console=False), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
                              stdin=subprocess.DEVNULL, env=env, **flags)
             for _ in range(30):
                 time.sleep(0.3)

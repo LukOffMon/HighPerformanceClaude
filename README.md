@@ -111,10 +111,7 @@ Sitio explicativo (iceberg animado en el Antártico): https://lukoffmon.github.i
 
 Una **app de escritorio** (Windows, macOS, Linux) que le da memoria a Claude: un cajón (*çekmece* en turco) de notas Markdown que Claude ordena solo, con un cajón por proyecto, paquetes de memoria con tope de tokens, búsqueda con ranking, compatibilidad con Obsidian y **Rollito**, un asistente pixel art que narra todo lo que pasa. Se conecta a Claude Code por MCP: pide permiso una vez y desde entonces es automático.
 
-```
-irm https://raw.githubusercontent.com/LukOffMon/HighPerformanceClaude/main/apps/cekmecon/install.ps1 | iex      # Windows
-curl -fsSL https://raw.githubusercontent.com/LukOffMon/HighPerformanceClaude/main/apps/cekmecon/install.sh | bash  # macOS / Linux
-```
+**Descargar:** [Windows (.exe)](https://github.com/LukOffMon/HighPerformanceClaude/releases/latest/download/Cekmecon-Setup-Windows.exe) · [macOS (.dmg)](https://github.com/LukOffMon/HighPerformanceClaude/releases/latest/download/Cekmecon-macOS.dmg) · [Linux (.tar.gz)](https://github.com/LukOffMon/HighPerformanceClaude/releases/latest/download/Cekmecon-Linux-x86_64.tar.gz) — programa normal, sin Python; al abrirlo se conecta solo a Claude Code.
 
 Sitio (el rollo que se desenrolla): https://lukoffmon.github.io/HighPerformanceClaude/cekmecon/ — detalles en [`apps/cekmecon/README.md`](apps/cekmecon/README.md). La skill `cekmecon` del plugin le enseña a Claude a usarla.
 

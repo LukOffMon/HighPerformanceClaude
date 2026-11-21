@@ -381,6 +381,25 @@ def already_running() -> int:
     return 0
 
 
+def auto_connect(app: "App") -> None:
+    """First launch of the downloaded program: register it with Claude Code by itself (no terminal needed).
+    Re-registers if the program moved (new install path)."""
+    from .__main__ import claude_cli, connect
+    want = " ".join(paths.self_command("mcp"))
+    if os.environ.get("CEKMECON_NO_AUTOCONNECT") or paths.config().get("connected") == want:
+        return
+    if not claude_cli():
+        app.emit("setup", "No encontré Claude Code en esta PC. Cuando lo instales, abre Çekmecón otra vez y me conecto solo.", mood="think")
+        return
+    try:
+        ok = connect() == 0
+    except Exception as exc:  # never break the app over this
+        ok = False
+        app.emit("setup", f"No pude registrarme en Claude Code: {exc}", mood="alert")
+    if ok:
+        app.emit("setup", "Me registré en Claude Code. La próxima vez que lo uses, te pediré permiso una sola vez.", mood="celebrate")
+
+
 def serve(port: int = DEFAULT_PORT, window: bool = True, vault_root: str = "") -> None:
     running = already_running()
     if running:
@@ -416,6 +435,7 @@ def serve(port: int = DEFAULT_PORT, window: bool = True, vault_root: str = "") -
                 pass
 
     threading.Thread(target=watch, daemon=True).start()
+    threading.Thread(target=auto_connect, args=(app,), daemon=True).start()
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

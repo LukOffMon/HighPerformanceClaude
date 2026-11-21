@@ -6,7 +6,17 @@
 
 Sitio: https://lukoffmon.github.io/HighPerformanceClaude/cekmecon/
 
-## Instalar
+## Descargar (recomendado)
+
+| Sistema | Descarga |
+|---|---|
+| Windows 10/11 | [Cekmecon-Setup-Windows.exe](https://github.com/LukOffMon/HighPerformanceClaude/releases/latest/download/Cekmecon-Setup-Windows.exe) — instalador, sin admin. Si sale “Windows protegió tu PC”: *Más información → Ejecutar de todas formas* |
+| macOS (Apple Silicon) | [Cekmecon-macOS.dmg](https://github.com/LukOffMon/HighPerformanceClaude/releases/latest/download/Cekmecon-macOS.dmg) — arrastra Çekmecón a Aplicaciones. La primera vez: *Ajustes → Privacidad y seguridad → Abrir igualmente* |
+| Linux x86_64 | [Cekmecon-Linux-x86_64.tar.gz](https://github.com/LukOffMon/HighPerformanceClaude/releases/latest/download/Cekmecon-Linux-x86_64.tar.gz) — descomprime y ejecuta `./install-linux.sh` |
+
+Programa autónomo: no necesita Python. Al abrirlo por primera vez se registra solo en Claude Code. Los binarios los compila `.github/workflows/cekmecon-release.yml` (PyInstaller + Inno Setup) y se publican en GitHub Releases en cada push a `main`.
+
+## Instalar desde el código (alternativa)
 
 | Sistema | Comando |
 |---|---|
@@ -70,5 +80,7 @@ Solo biblioteca estándar de Python. Pruebas de punta a punta (bóveda, organiza
 python3 -m unittest discover -s apps/cekmecon/tests
 PYTHONPATH=apps/cekmecon python3 -m cekmecon      # ejecutar desde el código
 ```
+
+Compilar el programa para tu sistema: `pip install pyinstaller && python3 apps/cekmecon/packaging/build.py` (en Windows también Inno Setup 6).
 
 `cekmecon/ui/` es la ventana (HTML/CSS/JS sin build). `cekmecon/skill/SKILL.md` es una copia de `skills/cekmecon/SKILL.md` (el validador comprueba que sean iguales).

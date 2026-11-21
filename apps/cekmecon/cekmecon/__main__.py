@@ -21,24 +21,30 @@ from . import APP_NAME, DEFAULT_PORT, __version__, paths
 SKILL_SRC = Path(__file__).with_name("skill") / "SKILL.md"
 
 
+NO_WINDOW = {"creationflags": 0x08000000} if sys.platform == "win32" else {}  # CREATE_NO_WINDOW
+
+
 def claude_cli() -> str:
     exe = shutil.which("claude") or shutil.which("claude.cmd") or shutil.which("claude.exe")
     return exe or ""
 
 
-def connect() -> int:
-    cmd = [sys.executable, "-m", "cekmecon", "mcp"]
+def connect(quiet: bool = False) -> int:
+    cmd = paths.self_command("mcp")
     exe = claude_cli()
     if exe:
-        subprocess.run([exe, "mcp", "remove", "--scope", "user", "cekmecon"], capture_output=True)
-        res = subprocess.run([exe, "mcp", "add", "--scope", "user", "cekmecon", "--", *cmd], capture_output=True, text=True)
+        subprocess.run([exe, "mcp", "remove", "--scope", "user", "cekmecon"], capture_output=True, **NO_WINDOW)
+        res = subprocess.run([exe, "mcp", "add", "--scope", "user", "cekmecon", "--", *cmd], capture_output=True, text=True, **NO_WINDOW)
         if res.returncode != 0:
             print(res.stderr or res.stdout)
             return 1
         print("✓ Registered the MCP server “cekmecon” in Claude Code (all your projects).")
+        cfg = paths.config()
+        cfg["connected"] = " ".join(cmd)
+        paths.save_config(cfg)
     else:
         print("Claude Code CLI not found on PATH. Add this to ~/.claude.json under \"mcpServers\" (or run the command later):")
-        print('  "cekmecon": {"command": %r, "args": ["-m", "cekmecon", "mcp"]}' % sys.executable)
+        print('  "cekmecon": {"command": %r, "args": %r}' % (cmd[0], cmd[1:]))
         print(f"  claude mcp add --scope user cekmecon -- {' '.join(cmd)}")
     dst = Path.home() / ".claude" / "skills" / "cekmecon" / "SKILL.md"
     if SKILL_SRC.exists():

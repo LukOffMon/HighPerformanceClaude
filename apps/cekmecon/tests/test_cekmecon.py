@@ -16,7 +16,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TMP = tempfile.mkdtemp(prefix="cek-")
-os.environ.update(CEKMECON_HOME=f"{TMP}/state", CEKMECON_VAULT=f"{TMP}/vault", CEKMECON_NO_WINDOW="1", CEKMECON_NO_AUTOSTART="1")
+os.environ.update(CEKMECON_HOME=f"{TMP}/state", CEKMECON_VAULT=f"{TMP}/vault", CEKMECON_NO_WINDOW="1", CEKMECON_NO_AUTOSTART="1", CEKMECON_NO_AUTOCONNECT="1")
 sys.path.insert(0, str(ROOT))
 
 from cekmecon import paths  # noqa: E402

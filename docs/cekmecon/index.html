@@ -53,7 +53,22 @@ h1 .c { color: var(--leaf); display: block; font-size: 1.12em; }
 .sub { max-width: 34em; margin: 0 auto; color: #bfe9cc; font-size: clamp(15px, 1.6vw, 18px); }
 .name-note { font: 12px var(--mono); color: #7fb893; margin-top: 8px; }
 .name-note b { color: var(--gold); font-weight: 600; }
-body.open .hero .sub, body.open .hero .name-note, body.open .hero .kicker, body.open .cta { display: none; }
+body.open .hero .sub, body.open .hero .name-note, body.open .hero .kicker, body.open .hero-foot { display: none; }
+.hero-foot { display: grid; gap: 14px; justify-items: center; }
+.hero-dl { display: inline-flex; gap: 8px; align-items: center; font: 700 16px var(--body); color: #06210f; background: var(--leaf); padding: 12px 22px; border-radius: 99px; text-decoration: none; box-shadow: 0 10px 30px rgba(63,210,122,.25); }
+.hero-dl:hover { background: var(--mint); }
+.hero-dl:focus-visible, .dl-big:focus-visible, .dl:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.dl-main { margin: 18px 0 12px; }
+.dl-big { display: flex; gap: 16px; align-items: center; text-decoration: none; background: #0d2416; color: var(--mint); padding: 18px 22px; border-radius: 18px; transition: transform .15s; }
+.dl-big:hover { transform: translateY(-2px); }
+.dl-big .dl-ico { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; background: var(--leaf); color: #06210f; font-size: 24px; flex: none; }
+.dl-big b { display: block; font-size: 20px; color: var(--paper); }
+.dl-big small { display: block; font: 12px var(--mono); color: #8fc7a2; overflow-wrap: anywhere; }
+.dl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 8px; margin-bottom: 14px; }
+.dl { text-decoration: none; color: #0f3a22; background: #e2f4e2; border-radius: 14px; padding: 10px 14px; border: 2px solid transparent; }
+.dl:hover, .dl.mine { border-color: #2fae5f; }
+.dl b { display: block; } .dl small { color: var(--ink-soft); }
+details.alt { margin-top: 12px; } details.alt summary { cursor: pointer; font-weight: 600; color: #1f6b40; margin-bottom: 6px; }
 body.open h1 { font-size: clamp(26px, 4vw, 40px); margin: 0 0 4px; }
 body.open h1 .c { display: inline; font-size: 1em; }
 
@@ -206,7 +221,7 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
         </div>
       </button>
     </div>
-    <div class="cta" id="cta">↓ toca el rollo ↓</div>
+    <div class="hero-foot"><a class="hero-dl" id="heroDl" href="#instalar">⬇ <span id="heroDlLabel">Descargar para Windows</span></a><div class="cta" id="cta">↓ toca el rollo para ver todo ↓</div></div>
   </header>
 
   <main class="sheet" id="sheet" aria-label="Contenido del rollo">
@@ -272,9 +287,23 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
     </section>
 
     <section class="hoja reveal" id="instalar">
-      <div class="num">Hoja 5 de 8 · instalar</div>
-      <h2>Un comando y queda instalado</h2>
-      <p>Se instala para tu usuario, sin permisos de administrador. Agrega el ícono al menú, conecta Claude Code y abre la app.</p>
+      <div class="num">Hoja 5 de 8 · descargar</div>
+      <h2>Descárgalo e instálalo como cualquier programa</h2>
+      <p>Un instalador normal, igual que Obsidian. No necesitas Python ni la terminal. Se instala solo para tu usuario y, al abrirlo por primera vez, se conecta solo a Claude Code.</p>
+      <div class="dl-main">
+        <a class="dl-big" id="dlBig" href="https://github.com/LukOffMon/HighPerformanceClaude/releases/latest/download/Cekmecon-Setup-Windows.exe"><span class="dl-ico" aria-hidden="true">⬇</span><span><b id="dlBigLabel">Descargar para Windows</b><small id="dlBigMeta">Cekmecon-Setup-Windows.exe · Windows 10 y 11</small></span></a>
+      </div>
+      <div class="dl-grid">
+        <a class="dl" data-os="win" href="https://github.com/LukOffMon/HighPerformanceClaude/releases/latest/download/Cekmecon-Setup-Windows.exe"><b>Windows</b><small>Instalador .exe · 10 y 11</small></a>
+        <a class="dl" data-os="mac" href="https://github.com/LukOffMon/HighPerformanceClaude/releases/latest/download/Cekmecon-macOS.dmg"><b>macOS</b><small>.dmg · Apple Silicon (M1–M4)</small></a>
+        <a class="dl" data-os="lin" href="https://github.com/LukOffMon/HighPerformanceClaude/releases/latest/download/Cekmecon-Linux-x86_64.tar.gz"><b>Linux</b><small>.tar.gz · x86_64</small></a>
+      </div>
+      <ol class="steps">
+        <li id="stepOpen">Abre <code>Cekmecon-Setup-Windows.exe</code> y pulsa Siguiente. Si Windows muestra “Windows protegió tu PC”, pulsa <b>Más información → Ejecutar de todas formas</b> (el programa aún no está firmado).</li>
+        <li>Abre <b>Çekmecón</b> desde el menú Inicio, el Launchpad o tu menú de aplicaciones. Rollito te saluda y la app se registra sola en Claude Code.</li>
+        <li>Listo. Ve a la hoja siguiente para darle permiso a Claude.</li>
+      </ol>
+      <details class="alt"><summary>¿Prefieres la terminal? (instala desde el código, necesita Python 3.9+)</summary>
       <div class="tabs" role="tablist" aria-label="Sistema operativo">
         <button role="tab" id="tab-win" aria-selected="true" aria-controls="p-win">Windows</button>
         <button role="tab" id="tab-mac" aria-selected="false" aria-controls="p-mac">macOS</button>
@@ -282,16 +311,17 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
       </div>
       <div class="panel" role="tabpanel" id="p-win" aria-labelledby="tab-win">
         <div class="cmd"><code>irm https://raw.githubusercontent.com/LukOffMon/HighPerformanceClaude/main/apps/cekmecon/install.ps1 | iex</code><button class="copy">Copiar</button></div>
-        <p>Pégalo en PowerShell. Si no tienes Python, lo instala con winget. Crea accesos en el menú Inicio y el escritorio.</p>
+        <p>Pégalo en PowerShell. Si no tienes Python, lo instala con winget.</p>
       </div>
       <div class="panel" role="tabpanel" id="p-mac" aria-labelledby="tab-mac" hidden>
         <div class="cmd"><code>curl -fsSL https://raw.githubusercontent.com/LukOffMon/HighPerformanceClaude/main/apps/cekmecon/install.sh | bash</code><button class="copy">Copiar</button></div>
-        <p>Pégalo en Terminal. Queda en Aplicaciones como <b>Çekmecón</b> (Launchpad y Spotlight).</p>
+        <p>Pégalo en Terminal. Sirve también para Mac con Intel.</p>
       </div>
       <div class="panel" role="tabpanel" id="p-lin" aria-labelledby="tab-lin" hidden>
         <div class="cmd"><code>curl -fsSL https://raw.githubusercontent.com/LukOffMon/HighPerformanceClaude/main/apps/cekmecon/install.sh | bash</code><button class="copy">Copiar</button></div>
-        <p>Queda en tu menú de aplicaciones y como comando <code>cekmecon</code>. Solo necesita Python 3.9 o superior.</p>
+        <p>Queda en tu menú de aplicaciones y como comando <code>cekmecon</code>.</p>
       </div>
+      </details>
     </section>
 
     <section class="hoja reveal" id="conectar">
@@ -519,7 +549,7 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
     "mejor": ["Spoiler: Obsidian no ordena solo.", "think"],
     "como": ["Todo se queda en tu PC. Prometido.", "read"],
     "rollito": ["¡Ey, ese soy yo!", "celebrate"],
-    "instalar": ["Un comando. Copia, pega, listo.", "work"],
+    "instalar": ["Un clic y me descargas a tu PC.", "work"],
     "conectar": ["Un permiso y nos hacemos amigos para siempre.", "alert"],
     "herramientas": ["Ocho herramientas y ni una relectura.", "write"],
     "faq": ["¿Dudas? Aquí abajo las respondo.", "think"],
@@ -538,21 +568,21 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
 
   /* unroll */
   const body = document.body;
-  function open() {
+  function open(target) {
     if (body.classList.contains("open")) return;
     document.querySelectorAll(".reveal").forEach(el => { const r = el.getBoundingClientRect(); if (r.top > innerHeight) el.classList.add("pending"); });
     body.classList.add("open"); body.classList.remove("rolled");
     $("#roll").setAttribute("aria-label", "Rollo de Çekmecón");
     floatSay("¡Desenrollando! Baja para ver todo lo que trae.", "celebrate");
     try { history.replaceState(null, "", "#leer"); } catch {}
-    setTimeout(() => $("#que-es").scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }), reduce ? 0 : 1500);
+    setTimeout(() => (document.getElementById(target) || $("#que-es")).scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }), reduce ? 0 : 1500);
   }
-  $("#roll").addEventListener("click", open);
+  $("#roll").addEventListener("click", () => open());
   $("#reroll").addEventListener("click", () => {
     scrollTo({ top: 0, behavior: "smooth" });
     setTimeout(() => { body.classList.remove("open"); try { history.replaceState(null, "", " "); } catch {} }, reduce ? 0 : 700);
   });
-  if (location.hash && location.hash !== "#top") { open(); }
+  if (location.hash && location.hash !== "#top") { open(location.hash.slice(1)); }
 
   /* the lying roll turns as the paper scrolls past: one turn per 2πr pixels */
   let ticking = false;
@@ -566,7 +596,20 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
   tabs.forEach(t => t.addEventListener("click", () => {
     tabs.forEach(x => { x.setAttribute("aria-selected", String(x === t)); document.getElementById(x.getAttribute("aria-controls")).hidden = x !== t; });
   }));
-  if (/Mac/.test(navigator.platform)) tabs[1].click(); else if (/Linux/.test(navigator.platform) && !/Android/.test(navigator.userAgent)) tabs[2].click();
+  const ua = navigator.userAgent + " " + (navigator.platform || "");
+  const os = /Mac|iPhone|iPad/.test(ua) ? "mac" : /Linux|X11/.test(ua) && !/Android/.test(ua) ? "lin" : "win";
+  if (os === "mac") tabs[1].click(); else if (os === "lin") tabs[2].click();
+  const DL = {
+    win: ["Descargar para Windows", "Cekmecon-Setup-Windows.exe · Windows 10 y 11", 'Abre <code>Cekmecon-Setup-Windows.exe</code> y pulsa Siguiente. Si Windows muestra “Windows protegió tu PC”, pulsa <b>Más información → Ejecutar de todas formas</b> (el programa aún no está firmado).'],
+    mac: ["Descargar para Mac", "Cekmecon-macOS.dmg · Apple Silicon (M1–M4)", 'Abre <code>Cekmecon-macOS.dmg</code> y arrastra <b>Çekmecón</b> a Aplicaciones. La primera vez macOS lo bloquea porque aún no está firmado: ve a <b>Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente</b>.'],
+    lin: ["Descargar para Linux", "Cekmecon-Linux-x86_64.tar.gz · x86_64", 'Descomprime <code>Cekmecon-Linux-x86_64.tar.gz</code> y ejecuta <code>./install-linux.sh</code> dentro de la carpeta. Queda en tu menú de aplicaciones.'],
+  };
+  const mine = document.querySelector(`.dl[data-os="${os}"]`);
+  mine.classList.add("mine");
+  $("#dlBig").href = mine.href; $("#dlBigLabel").textContent = DL[os][0]; $("#dlBigMeta").textContent = DL[os][1];
+  $("#stepOpen").innerHTML = DL[os][2]; $("#heroDlLabel").textContent = DL[os][0];
+  $("#heroDl").addEventListener("click", e => { e.preventDefault(); open("instalar"); });
+  document.querySelectorAll(".dl, .dl-big").forEach(a => a.addEventListener("click", () => floatSay("¡Descargando! Ábrelo cuando termine y yo te saludo desde tu PC.", "celebrate")));
   document.querySelectorAll(".copy").forEach(b => b.addEventListener("click", async () => {
     const code = b.previousElementSibling;
     try { await navigator.clipboard.writeText(code.textContent); b.textContent = "Copiado ✓"; }

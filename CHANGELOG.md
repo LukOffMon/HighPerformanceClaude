@@ -4,7 +4,8 @@
 ### Added
 - **Toilet Bamboo Paper Çekmecón** (`apps/cekmecon/`): installable desktop memory app for Claude. Markdown vault (Obsidian-compatible) with SQLite FTS5 index, one drawer per project created automatically (brief, auto map, decisions, lessons, tasks, log), token-budgeted context packs, inbox organizer, lesson de-duplication, backlinks and graph. Localhost UI with Rollito, an original pixel-art assistant that narrates every step.
 - MCP bridge (`cekmecon mcp`, 8 tools) with one-time pairing: the app asks you to allow Claude once ("always" or "this session"); afterwards connections are automatic. The bridge starts the app if it is closed.
-- Installers for Windows (`install.ps1`, Start Menu + Desktop shortcuts), macOS (`.app` in ~/Applications) and Linux (`.desktop`), plus `cekmecon connect` to register with Claude Code.
+- Downloadable program (no Python needed): `.github/workflows/cekmecon-release.yml` builds `Cekmecon-Setup-Windows.exe` (Inno Setup), `Cekmecon-macOS.dmg` and `Cekmecon-Linux-x86_64.tar.gz` with PyInstaller and publishes them to GitHub Releases; the site's download buttons point there. On first launch the program registers itself with Claude Code.
+- Script installers for Windows (`install.ps1`, Start Menu + Desktop shortcuts), macOS (`.app` in ~/Applications) and Linux (`.desktop`), plus `cekmecon connect` to register with Claude Code.
 - `skills/cekmecon`: how Claude uses the app (local sessions only, ask once, then automatic).
 - `site/cekmecon.html` → `docs/cekmecon/`: spinning 3D bamboo roll that unrolls into the explainer.
 - End-to-end tests for the app (`apps/cekmecon/tests`), run in CI.

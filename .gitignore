@@ -7,3 +7,5 @@ __pycache__/
 .DS_Store
 .claude/handoff.md
 shot-*.png
+apps/cekmecon/packaging/build/
+apps/cekmecon/packaging/out/
