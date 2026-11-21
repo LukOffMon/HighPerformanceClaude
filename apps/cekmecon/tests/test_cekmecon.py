@@ -82,7 +82,7 @@ class AppAndBridgeTests(unittest.TestCase):
         cls.server = server
         cls.thread = threading.Thread(target=server.serve, kwargs={"port": 47317, "window": False}, daemon=True)
         cls.thread.start()
-        for _ in range(50):
+        for _ in range(300):
             if paths.read_json(paths.running_file(), {}).get("port"):
                 break
             time.sleep(0.1)

@@ -367,6 +367,16 @@ def make_handler(app: App):
     return H
 
 
+class LocalServer(ThreadingHTTPServer):
+    """Skips HTTPServer.server_bind's reverse-DNS lookup (getfqdn), which can stall for seconds on macOS."""
+    daemon_threads = True
+
+    def server_bind(self):
+        import socketserver
+        socketserver.TCPServer.server_bind(self)
+        self.server_name, self.server_port = "127.0.0.1", self.server_address[1]
+
+
 def already_running() -> int:
     info = paths.read_json(paths.running_file(), {})
     port = info.get("port")
@@ -412,7 +422,7 @@ def serve(port: int = DEFAULT_PORT, window: bool = True, vault_root: str = "") -
     for p in [port] + list(range(port + 1, port + 20)):
         try:
             app = App(vault, p)
-            httpd = ThreadingHTTPServer(("127.0.0.1", p), make_handler(app))
+            httpd = LocalServer(("127.0.0.1", p), make_handler(app))
             break
         except OSError:
             continue
