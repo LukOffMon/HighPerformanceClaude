@@ -1,4 +1,4 @@
-"""Where Çekmecón keeps things.
+"""Where GeekMcON keeps things.
 
   ~/.cekmecon/            app state (config, approved clients, index, running-app record)
   ~/Cekmecon/             the vault: plain Markdown you own (override with CEKMECON_VAULT or config)
@@ -55,7 +55,7 @@ def running_file() -> Path:
 
 
 def self_command(*args: str, console: bool = True) -> list:
-    """How to run Çekmecón itself: the installed program (frozen build) or `python -m cekmecon`.
+    """How to run GeekMcON itself: the installed program (frozen build) or `python -m cekmecon`.
 
     On Windows the download ships two programs: Cekmecon.exe (window, no console) and cekmecon-cli.exe
     (console, used for the MCP stdio bridge and `connect`)."""

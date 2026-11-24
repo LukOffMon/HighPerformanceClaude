@@ -3,7 +3,7 @@
 
   site/iceberg.html   -> docs/index.html
   site/cekmecon.html  -> docs/cekmecon/index.html
-  apps/cekmecon/cekmecon/ui + site/cekmecon-app  -> docs/cekmecon/app/   (Çekmecón Web: the desktop window
+  apps/cekmecon/cekmecon/ui + site/cekmecon-app  -> docs/cekmecon/app/   (GeekMcON Web: the desktop window
                                                     running in the browser, offline-capable PWA)
 
 Sources may inline other repo files with  /*@include relative/path*/  (resolved relative to site/).

@@ -1,4 +1,4 @@
-/* Çekmecón Web service worker: after the first visit the app opens and works with no connection.
+/* GeekMcON Web service worker: after the first visit the app opens and works with no connection.
    Stale-while-revalidate: answer from cache instantly, refresh the cache from the network when online. */
 const CACHE = "cekmecon-web-__BUILD__";
 const CORE = ["./", "./index.html", "./manifest.webmanifest", "./ui/style.css", "./ui/app.js", "./ui/mascot.js", "./ui/neurons.js", "./ui/webstore.js", "./ui/logo.svg", "./ui/icon.png"];

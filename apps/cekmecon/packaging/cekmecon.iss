@@ -1,4 +1,4 @@
-﻿; Inno Setup 6 script for the Windows installer of Toilet Bamboo Paper Çekmecón.
+﻿; Inno Setup 6 script for the Windows installer of Toilet Bamboo Paper GeekMcON.
 ; Built by packaging/build.py (defines AppVersion, SrcDir, IconFile). Per-user install, no admin rights.
 #ifndef AppVersion
   #define AppVersion "1.0.0"
@@ -6,13 +6,13 @@
 
 [Setup]
 AppId={{6F1B3C2A-7E44-4C1D-9B0E-CEC0B4AB0001}
-AppName=Çekmecón
-AppVerName=Toilet Bamboo Paper Çekmecón {#AppVersion}
+AppName=GeekMcON
+AppVerName=Toilet Bamboo Paper GeekMcON {#AppVersion}
 AppVersion={#AppVersion}
 AppPublisher=LukOffMon
 AppPublisherURL=https://lukoffmon.github.io/HighPerformanceClaude/cekmecon/
 DefaultDirName={localappdata}\Programs\Cekmecon
-DefaultGroupName=Çekmecón
+DefaultGroupName=GeekMcON
 DisableProgramGroupPage=yes
 PrivilegesRequired=lowest
 OutputBaseFilename=Cekmecon-Setup-Windows
@@ -34,12 +34,17 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Source: "{#SrcDir}\Cekmecon.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "{#SrcDir}\cekmecon-cli.exe"; DestDir: "{app}"; Flags: ignoreversion
 
+[InstallDelete]
+; shortcuts from versions before 1.2, when the app was called Çekmecón
+Type: files; Name: "{autoprograms}\Çekmecón.lnk"
+Type: files; Name: "{autodesktop}\Çekmecón.lnk"
+
 [Icons]
-Name: "{autoprograms}\Çekmecón"; Filename: "{app}\Cekmecon.exe"
-Name: "{autodesktop}\Çekmecón"; Filename: "{app}\Cekmecon.exe"; Tasks: desktopicon
+Name: "{autoprograms}\GeekMcON"; Filename: "{app}\Cekmecon.exe"
+Name: "{autodesktop}\GeekMcON"; Filename: "{app}\Cekmecon.exe"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\Cekmecon.exe"; Description: "{cm:LaunchProgram,Çekmecón}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\Cekmecon.exe"; Description: "{cm:LaunchProgram,GeekMcON}"; Flags: nowait postinstall skipifsilent
 
 [UninstallRun]
 Filename: "{app}\cekmecon-cli.exe"; Parameters: "disconnect"; Flags: runhidden; RunOnceId: "DisconnectClaude"

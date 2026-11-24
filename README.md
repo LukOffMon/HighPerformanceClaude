@@ -107,7 +107,7 @@ Detecta tu stack y lo que ya tienes instalado, y recomienda solo lo que falta pa
 
 Sitio explicativo (iceberg animado en el Antártico): https://lukoffmon.github.io/HighPerformanceClaude/ — fuente en `site/iceberg.html`, publicado desde `docs/` con GitHub Pages.
 
-## 🧻 Toilet Bamboo Paper Çekmecón
+## 🧻 Toilet Bamboo Paper GeekMcON
 
 Una **app de escritorio** (Windows, macOS, Linux) que le da memoria a Claude: un cajón (*çekmece* en turco) de notas Markdown que Claude ordena solo, con un cajón por proyecto, paquetes de memoria con tope de tokens, búsqueda con ranking, compatibilidad con Obsidian y **Rollito**, un asistente pixel art que narra todo lo que pasa. Se conecta a Claude Code por MCP: pide permiso una vez y desde entonces es automático.
 
@@ -213,7 +213,7 @@ En [`evals/scenarios.md`](evals/scenarios.md) hay 12 escenarios para comparar se
 python3 tools/validate.py     # valida frontmatter, límites, enlaces, manifiestos, agentes, comandos, zip
 python3 tools/package.py      # regenera dist/*.zip, uno por skill (determinista)
 python3 tools/build_site.py   # regenera docs/ (iceberg y cekmecon) desde site/
-python3 -m unittest discover -s apps/cekmecon/tests   # pruebas de la app Çekmecón
+python3 -m unittest discover -s apps/cekmecon/tests   # pruebas de la app GeekMcON
 python3 tools/token_report.py # coste en tokens: siempre cargado / al activarse / bajo demanda
 claude plugin validate .      # validación oficial de Claude Code
 ```
@@ -223,7 +223,7 @@ La CI (`.github/workflows/validate.yml`) ejecuta todo esto en cada push. Reglas 
 ```
 .
 ├── .claude-plugin/        plugin.json · marketplace.json · icon.png
-├── apps/cekmecon/         app de escritorio Çekmecón (Python stdlib, UI web, puente MCP, instaladores)
+├── apps/cekmecon/         app de escritorio GeekMcON (Python stdlib, UI web, puente MCP, instaladores)
 ├── skills/cekmecon/       cómo usa Claude la app
 ├── skills/iceberg/
 │   ├── SKILL.md
@@ -237,7 +237,7 @@ La CI (`.github/workflows/validate.yml`) ejecuta todo esto en cada push. Reglas 
 ├── commands/              12 comandos
 ├── tools/                 validate.py · package.py · build_site.py · token_report.py
 ├── evals/                 scenarios.md
-├── site/ · docs/          sitios del iceberg y de Çekmecón (fuente · GitHub Pages)
+├── site/ · docs/          sitios del iceberg y de GeekMcON (fuente · GitHub Pages)
 ├── dist/                  high-performance.zip · iceberg.zip · cekmecon.zip (para claude.ai)
 ├── install.sh
 └── CLAUDE.md

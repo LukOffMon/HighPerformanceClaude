@@ -1,8 +1,9 @@
-# Toilet Bamboo Paper Cekmecon - Windows installer.
+# Toilet Bamboo Paper GeekMcON (formerly Cekmecon) - Windows installer.
 #   irm https://raw.githubusercontent.com/LukOffMon/HighPerformanceClaude/main/apps/cekmecon/install.ps1 | iex
 # Installs the app for your user (no admin), adds Start Menu + Desktop shortcuts, connects it to Claude Code and opens it.
 $ErrorActionPreference = "Stop"
-$Name = [string][char]0x00C7 + "ekmec" + [char]0x00F3 + "n"
+$Name = "GeekMcON"
+$OldName = [string][char]0x00C7 + "ekmec" + [char]0x00F3 + "n"  # shortcuts from versions before 1.2
 $Src = "https://github.com/LukOffMon/HighPerformanceClaude/archive/refs/heads/main.zip#subdirectory=apps/cekmecon"
 if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "pyproject.toml"))) { $Src = $PSScriptRoot }
 
@@ -35,6 +36,7 @@ $Pythonw, $Python, $Icon = $info[0], $info[1], $info[2]
 if (-not (Test-Path $Pythonw)) { $Pythonw = $Python }
 
 $shell = New-Object -ComObject WScript.Shell
+foreach ($dir in @([Environment]::GetFolderPath("Programs"), [Environment]::GetFolderPath("Desktop"))) { Remove-Item -LiteralPath (Join-Path $dir "$OldName.lnk") -ErrorAction SilentlyContinue }
 $targets = @((Join-Path ([Environment]::GetFolderPath("Programs")) "$Name.lnk"), (Join-Path ([Environment]::GetFolderPath("Desktop")) "$Name.lnk"))
 foreach ($lnkPath in $targets) {
   $lnk = $shell.CreateShortcut($lnkPath)

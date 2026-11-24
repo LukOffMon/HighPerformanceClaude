@@ -1,4 +1,4 @@
-/* Rollito — Çekmecón's pixel assistant: a little green bamboo-paper roll that tells you what is happening.
+/* Rollito — GeekMcON's pixel assistant: a little green bamboo-paper roll that tells you what is happening.
    Usage: const r = Rollito.mount(element, {size: 96}); r.say("Hello", "wave");
    Moods: idle, wave, work, think, read, write, celebrate, alert, sleep. No dependencies. */
 (function () {

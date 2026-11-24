@@ -1,8 +1,8 @@
-/* Neuronas — Çekmecón's memory visualizer. Every note becomes a little cluster of glowing particles;
-   links become synapses that fire. Six forms morph into each other: Cerebro, Red, Galaxia, Clústeres, Rueda, Corriente.
+/* Neuronas — GeekMcON's memory visualizer. Every note becomes a little cluster of glowing particles;
+   links become synapses that fire. Nine forms morph into each other: Cerebro, Neurona, Red, Galaxia, Clústeres, Matriz, Rueda, Calendario, Corriente.
    Usage: const nv = Neuronas.mount(el, { data: {nodes, edges}, onOpen: id => …, compact: false });
           nv.setData(data); nv.setForm("red"); nv.destroy();   Neuronas.demo(500) → sample data.
-   Node fields: id (path), title, project, folder, kind, mtime (seconds), size (bytes). No dependencies. */
+   Node fields: id (path), title, project, folder, kind, mtime (seconds), size (bytes), open (open tasks). No dependencies. */
 (function () {
   const CSS = `
 .nv{position:relative;width:100%;height:100%;box-sizing:border-box;overflow:hidden;background:radial-gradient(ellipse at 50% 40%,#0a1420 0,#03060a 70%);color:#cfe3f1;font:12px/1.4 ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;border-radius:16px;min-height:260px;user-select:none;-webkit-user-select:none;touch-action:none}
@@ -48,7 +48,8 @@
 
   const PAL = ["#4cc9f0", "#3fd27a", "#a78bfa", "#f472b6", "#fbbf24", "#2dd4bf", "#60a5fa", "#fb7185", "#c084fc", "#a3e635", "#f97316", "#e879f9", "#7d8fa3"];
   const AGE = ["#1d3b8f", "#2563eb", "#22d3ee", "#5eead4", "#d9fbe8"];
-  const FORMS = [["cerebro", "Cerebro"], ["red", "Red"], ["galaxia", "Galaxia"], ["clusters", "Clústeres"], ["rueda", "Rueda"], ["corriente", "Corriente"]];
+  const FORMS = [["cerebro", "Cerebro"], ["neurona", "Neurona"], ["red", "Red"], ["galaxia", "Galaxia"], ["clusters", "Clústeres"], ["matriz", "Matriz"], ["rueda", "Rueda"], ["calendario", "Calendario"], ["corriente", "Corriente"]];
+  const WEEK = ["L", "M", "X", "J", "V", "S", "D"];
   const COLORS = [["project", "Proyecto"], ["folder", "Carpeta"], ["kind", "Tipo"], ["age", "Edad"]];
   const MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
   const KIND_NAMES = { "": "nota", map: "mapa", brief: "brief", decisions: "decisiones", lessons: "lecciones", tasks: "tareas", log: "registro", daily: "diario" };
@@ -85,7 +86,7 @@
       return {
         id, title: n.title || parts[parts.length - 1].replace(/\.md$/, ""), project: n.project || "",
         folder: n.folder || (parts.length > 1 ? parts[0] : "Raíz"), kind: KIND_NAMES[n.kind || ""] || n.kind,
-        mtime: +n.mtime || 0, size: +n.size || 300, deg: 0, nb: [],
+        mtime: +n.mtime || 0, size: +n.size || 300, open: +n.open || 0, deg: 0, nb: [],
       };
     }).filter(n => n.id);
     const idx = new Map(nodes.map((n, i) => [n.id, i]));
@@ -126,7 +127,7 @@
     if (!opts.compact) {
       panel = document.createElement("div"); panel.className = "nv-panel";
       panel.innerHTML = `
-        <div class="nv-brand"><span>🧠 Neuronas</span><small>${esc(opts.title || "Çekmecón")}</small></div>
+        <div class="nv-brand"><span>🧠 Neuronas</span><small>${esc(opts.title || "GeekMcON")}</small></div>
         <div><div class="nv-h">Forma</div><div class="nv-grid" data-k="form">${FORMS.map(([k, l]) => `<button type="button" data-v="${k}">${l}</button>`).join("")}</div></div>
         <div><div class="nv-h">Color</div><div class="nv-grid c2" data-k="color">${COLORS.map(([k, l]) => `<button type="button" data-v="${k}">${l}</button>`).join("")}</div></div>
         <div><div class="nv-h">Mostrar</div>
@@ -334,6 +335,88 @@
           if (isCore[p]) { tx[p] = x; ty[p] = y; tz[p] = 0; continue; }
           const a = s1[p] * TAU, rr = Math.sqrt(s2[p]) * sp * .9; tx[p] = x + Math.cos(a) * rr; ty[p] = y + Math.sin(a) * rr; tz[p] = 0;
         }
+      } else if (f === "neurona") {
+        // a single neuron: one dendrite per space (notes are spines, oldest near the soma),
+        // and an axon whose terminals are the notes that still have open tasks
+        const soma = [0, R * .12], spread = Math.min(2.7, .5 + NG * .32);
+        const trees = groups.map((_, k) => {
+          const segs = [], r = rng(k * 7919 + 13);
+          (function grow(x, y, ang, len, depth) {
+            const x2 = x + Math.cos(ang) * len, y2 = y + Math.sin(ang) * len;
+            segs.push([x, y, x2, y2, depth]);
+            if (depth < 3) { const fan = .32 + r() * .25; grow(x2, y2, ang - fan, len * (.58 + r() * .12), depth + 1); grow(x2, y2, ang + fan, len * (.58 + r() * .12), depth + 1); }
+          })(soma[0], soma[1], -Math.PI / 2 + (NG > 1 ? (k / (NG - 1) - .5) * spread : 0), R * .42, 0);
+          return segs;
+        });
+        const axonY = R * .8, terms = nodes.map((n, i) => [n.open, i]).filter(([o]) => o > 0).sort((a, b) => b[0] - a[0]).map(([, i]) => i);
+        const termPos = new Map(terms.map((i, j) => {
+          const T = terms.length, a = T > 1 ? j / (T - 1) - .5 : 0;
+          return [i, [a * Math.min(WE * .5, R * 1.3) + Math.sin(j * 2.1) * 6, axonY + R * .2 + Math.abs(a) * R * .12 + (j % 3) * 7]];
+        }));
+        const order = groups.map(() => []); nodes.forEach((n, i) => { if (!termPos.has(i)) order[gIndex[i]].push(i); });
+        const npos = new Array(nodes.length);
+        order.forEach((mem, k) => {
+          mem.sort((a, b) => nodes[a].mtime - nodes[b].mtime);
+          const segs = trees[k];
+          // walk the tree depth-first so consecutive notes sit on connected branches
+          mem.forEach((i, j) => {
+            const u = (j + .5) / mem.length, sg = segs[Math.min(segs.length - 1, Math.floor(u * segs.length))], t = (u * segs.length) % 1;
+            const [x1, y1, x2, y2] = sg, dx = x2 - x1, dy = y2 - y1, L = Math.hypot(dx, dy) || 1, side = (j % 2 ? 1 : -1) * (3 + (j * 7 % 5));
+            npos[i] = [x1 + dx * t - dy / L * side, y1 + dy * t + dx / L * side, sg];
+          });
+          const tip = segs[segs.length - 1]; labels.push({ kind: "fixed", x: tip[2], y: tip[3] - 12, text: groups[k].name, color: groups[k].color, center: true });
+        });
+        termPos.forEach((pos, i) => { npos[i] = [pos[0], pos[1], [soma[0], soma[1], pos[0], pos[1]]]; });
+        for (let p = 0; p < P; p++) {
+          const i = pNode[p], [x, y, sg] = npos[i];
+          if (isCore[p]) { tx[p] = x; ty[p] = y; tz[p] = 0; continue; }
+          const u = s3[p];
+          if (u < .05) { const a = s1[p] * TAU, rr = Math.sqrt(s2[p]) * R * .07; tx[p] = soma[0] + Math.cos(a) * rr; ty[p] = soma[1] + Math.sin(a) * rr * .85; tz[p] = 0; continue; }
+          if (u < .09) { const t = s1[p]; tx[p] = soma[0] + g3(s2[p], u * 20) * 1.5; ty[p] = soma[1] + t * (axonY - soma[1]); tz[p] = 0; continue; }
+          const [x1, y1, x2, y2] = sg, t = termPos.has(i) ? (axonY - y1) / ((y2 - y1) || 1) + (1 - (axonY - y1) / ((y2 - y1) || 1)) * s1[p] : s1[p];
+          const bx = termPos.has(i) ? (t < 0 ? x1 : x1 + (x2 - x1) * Math.max(0, t)) : x1 + (x2 - x1) * t;
+          const by = termPos.has(i) ? axonY + (y2 - axonY) * s1[p] : y1 + (y2 - y1) * t;
+          const near = s2[p] < .4;
+          tx[p] = near ? x + g3(s1[p], s3[p]) * 3 : bx + g3(s2[p], s3[p]) * 1.2; ty[p] = near ? y + g3(s3[p], s1[p]) * 3 : by + g3(s3[p], s2[p]) * 1.2; tz[p] = 0;
+        }
+        labels.push({ kind: "fixed", x: soma[0], y: axonY + R * (opts.compact ? .3 : .42), text: terms.length ? `axón · ${terms.length} nota${terms.length === 1 ? "" : "s"} con tareas abiertas` : "axón · sin tareas abiertas", center: true, dim: true });
+      } else if (f === "calendario") {
+        // day-by-day heatmap: columns are weeks, rows are weekdays; each note lands in its day
+        const DAY = 86400, end = new Date(maxT * 1000); end.setHours(0, 0, 0, 0);
+        const endDay = end.getTime() / 1000, endDow = (end.getDay() + 6) % 7;
+        const weeks = clamp(Math.ceil((maxT - minT) / DAY / 7) + 1, 4, 53);
+        const c = Math.max(6, Math.min((WE * .9) / (weeks + 1.5), (H * .62) / 8.5)), x0 = -(weeks * c) / 2 + c * .7, y0 = -3.5 * c;
+        const idxEnd = (weeks - 1) * 7 + endDow, dayStart = t => new Date(new Date(t * 1000).setHours(0, 0, 0, 0)).getTime() / 1000;
+        const counts = new Float32Array(weeks * 7), cellOf = nodes.map(n => { const cell = idxEnd - Math.round((endDay - dayStart(n.mtime)) / DAY); return cell < 0 ? -1 : cell; });
+        cellOf.forEach(ci => ci >= 0 && counts[ci]++);
+        for (let p = 0; p < P; p++) {
+          const ci = cellOf[pNode[p]];
+          if (ci < 0) { tx[p] = x0 - c * 1.5 + g3(s1[p], s2[p]) * c * .2; ty[p] = g3(s2[p], s3[p]) * c; tz[p] = 0; continue; }
+          const wk = Math.floor(ci / 7), dow = ci % 7, pad = c * .12;
+          tx[p] = x0 + wk * c + pad + (isCore[p] ? .5 : s1[p]) * (c - 2 * pad); ty[p] = y0 + dow * c + pad + (isCore[p] ? .5 : s2[p]) * (c - 2 * pad); tz[p] = 0;
+        }
+        labels.push({ kind: "cells", x0, y0, cw: c, ch: c, cols: weeks, rows: 7, counts, colMajor: true });
+        WEEK.forEach((d, k) => k % 2 === 0 && labels.push({ kind: "fixed", x: x0 - c * .7, y: y0 + (k + .5) * c, text: d, center: true, dim: true }));
+        let lastM = -1;
+        for (let w = 0; w < weeks; w++) { const t = new Date((endDay - (idxEnd - w * 7) * DAY) * 1000); if (t.getMonth() !== lastM) { lastM = t.getMonth(); labels.push({ kind: "fixed", x: x0 + w * c, y: y0 - c * .6, text: MONTHS[lastM], dim: true }); } }
+        labels.push({ kind: "fixed", x: x0 + weeks * c / 2, y: y0 + 7 * c + c * .9, text: `${cellOf.filter(c => c >= 0).length} notas en ${weeks} semanas · cada cuadro es un día${cellOf.some(c => c < 0) ? " · a la izquierda, lo más antiguo" : ""}`, center: true, dim: true });
+      } else if (f === "matriz") {
+        // which spaces meet: row = a note's space, column = the space of the note it links to
+        const c = Math.max(10, Math.min((WE * .74) / (NG + 2.2), (H * .7) / (NG + 1.6))), x0 = -(NG * c) / 2 + c * .9, y0 = -(NG * c) / 2 + c * .5;
+        const counts = new Float32Array(NG * NG);
+        G.edges.forEach(([a, b]) => { counts[gIndex[a] * NG + gIndex[b]]++; if (gIndex[a] !== gIndex[b]) counts[gIndex[b] * NG + gIndex[a]]++; });
+        for (let p = 0; p < P; p++) {
+          const i = pNode[p], nb = nodes[i].nb, row = gIndex[i];
+          const col = nb.length ? gIndex[nb[Math.floor((isCore[p] ? 0 : s3[p]) * nb.length) % nb.length]] : row;
+          const pad = c * .1;
+          tx[p] = x0 + col * c + pad + s1[p] * (c - 2 * pad); ty[p] = y0 + row * c + pad + s2[p] * (c - 2 * pad); tz[p] = 0;
+        }
+        labels.push({ kind: "cells", x0, y0, cw: c, ch: c, cols: NG, rows: NG, counts });
+        groups.forEach((g, k) => {
+          labels.push({ kind: "fixed", x: x0 - 8, y: y0 + (k + .5) * c, text: g.name, color: g.color, right: true });
+          labels.push({ kind: "fixed", x: x0 + (k + .5) * c, y: y0 - 10, text: g.name.length > 6 ? g.name.slice(0, 5) + "…" : g.name, color: g.color, center: true });
+        });
+        labels.push({ kind: "fixed", x: x0 + NG * c / 2, y: y0 + NG * c + 18, text: "fila: espacio de la nota · columna: espacio al que enlaza", center: true, dim: true });
       } else if (f === "rueda") {
         const band = R * .7 / NG;
         for (let p = 0; p < P; p++) {
@@ -439,6 +522,14 @@
         for (let k = 0; k <= L.NG; k++) { ctx.beginPath(); ctx.arc(ox, oy, (R * .3 + L.band * k) * zoom, 0, TAU); ctx.stroke(); }
         for (let m = 0; m < 12; m++) { const a = -Math.PI / 2 + TAU * .985 * m / 12; ctx.beginPath(); ctx.moveTo(ox + Math.cos(a) * R * .28 * zoom, oy + Math.sin(a) * R * .28 * zoom); ctx.lineTo(ox + Math.cos(a) * R * 1.02 * zoom, oy + Math.sin(a) * R * 1.02 * zoom); ctx.stroke(); }
       }
+      for (const L of labels) {
+        if (L.kind !== "cells") continue;
+        let mx = 1; for (const v of L.counts) mx = Math.max(mx, v);
+        for (let a = 0; a < L.cols; a++) for (let b = 0; b < L.rows; b++) {
+          const v = L.counts[L.colMajor ? a * L.rows + b : b * L.cols + a], x = ox + (L.x0 + a * L.cw) * zoom, y = oy + (L.y0 + b * L.ch) * zoom, w = (L.cw - 2) * zoom, h = (L.ch - 2) * zoom;
+          ctx.fillStyle = v ? `rgba(76,201,240,${.05 + .22 * Math.sqrt(v / mx)})` : "rgba(120,170,210,.035)"; ctx.fillRect(x, y, w, h);
+        }
+      }
       const axis = labels.find(l => l.kind === "axis");
       if (axis) { ctx.strokeStyle = "rgba(120,170,210,.18)"; ctx.beginPath(); ctx.moveTo(ox + axis.x0 * zoom, oy + axis.y * zoom); ctx.lineTo(ox + (axis.x0 + axis.w) * zoom, oy + axis.y * zoom); ctx.stroke(); }
 
@@ -509,10 +600,16 @@
           if (l.kind === "group") { const g = gpos[l.g]; if (!g[2] || groups[l.g].count < 2) continue; x = g[0] / g[2]; y = g[1] / g[2]; color = groups[l.g].color; center = true; }
           else if (l.kind === "node") { x = sx[l.i] + 9; y = sy[l.i]; }
           else if (l.kind === "fixed") { x = ox + l.x * zoom; y = oy + l.y * zoom; if (l.color) color = l.color; }
+          else if (l.kind === "cells") {
+            if (l.cw * zoom < 22) continue;
+            ctx.globalAlpha = la * .8; ctx.fillStyle = "#e8f6ff";
+            for (let a = 0; a < l.cols; a++) for (let b = 0; b < l.rows; b++) { const v = l.counts[l.colMajor ? a * l.rows + b : b * l.cols + a]; if (v) { const t = String(v), tw = ctx.measureText(t).width; ctx.fillText(t, ox + (l.x0 + (a + .5) * l.cw) * zoom - tw / 2, oy + (l.y0 + (b + .5) * l.ch) * zoom); } }
+            continue;
+          }
           else continue;
-          if (text.length > 26) text = text.slice(0, 25) + "…";
+          if (!l.dim && text.length > 26) text = text.slice(0, 25) + "…";
           const w = ctx.measureText(text).width;
-          if (center) x -= w / 2;
+          if (center) x -= w / 2; else if (l.right) x -= w;
           ctx.globalAlpha = la * (l.dim ? .55 : 1);
           if (l.kind !== "fixed" || !l.dim) { ctx.fillStyle = "rgba(3,6,10,.62)"; ctx.fillRect(x - 4, y - 8, w + 8, 16); }
           ctx.fillStyle = color; ctx.fillText(text, x, y + .5);
@@ -610,7 +707,9 @@
         const age = r() < .35 ? Math.abs(burst + (r() - .5) * 40) : r() * span;
         const t = topics[(r() * topics.length) | 0];
         const id = folder === "Projects" ? `Projects/${name}/${t} ${i}.md` : `${folder}/${t} ${i}.md`;
-        nodes.push({ id, title: `${t}${i > topics.length ? " " + i : ""}`, project: folder === "Projects" ? name : "", folder, kind: kinds[(r() * kinds.length) | 0], mtime: now - age * DAY - r() * DAY, size: 120 + Math.pow(r(), 2) * 6000 });
+        const kind = kinds[(r() * kinds.length) | 0];
+        nodes.push({ id, title: `${t}${i > topics.length ? " " + i : ""}`, project: folder === "Projects" ? name : "", folder, kind, mtime: now - age * DAY - r() * DAY, size: 120 + Math.pow(r(), 2) * 6000,
+          open: folder !== "Archive" && (kind === "tasks" ? r() < .7 : r() < .02) ? 1 + ((r() * 4) | 0) : 0 });
       }
       for (let i = start + 1; i < nodes.length; i++) {
         const links = r() < .7 ? 1 + ((r() * 2.4) | 0) : 0;

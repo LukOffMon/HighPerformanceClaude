@@ -7,8 +7,8 @@ When the `cekmecon_*` MCP tools are available (local sessions), apply `skills/ce
 When the user says **Iceberg** (or "modo iceberg"), also apply `skills/iceberg/SKILL.md`: map the hidden part of the task and show an ICEBERG BRIEF before building.
 
 ## Layout
-- `apps/cekmecon/` — Toilet Bamboo Paper Çekmecón desktop app (stdlib Python: vault + FTS index, organizer, localhost UI with the Rollito assistant, MCP bridge with one-time pairing, installers). `skills/cekmecon/SKILL.md` must equal `apps/cekmecon/cekmecon/skill/SKILL.md`. Tests: `python3 -m unittest discover -s apps/cekmecon/tests`
-- `site/cekmecon.html` — source of the Çekmecón site (`docs/cekmecon/`); `/*@include path*/` inlines files at build time
+- `apps/cekmecon/` — Toilet Bamboo Paper GeekMcON desktop app (stdlib Python: vault + FTS index, organizer, localhost UI with the Rollito assistant, MCP bridge with one-time pairing, installers). `skills/cekmecon/SKILL.md` must equal `apps/cekmecon/cekmecon/skill/SKILL.md`. Tests: `python3 -m unittest discover -s apps/cekmecon/tests`
+- `site/cekmecon.html` — source of the GeekMcON site (`docs/cekmecon/`); `/*@include path*/` inlines files at build time
 - `skills/iceberg/` — Iceberg mode (adaptive descent + self-brief), triggered by the word "Iceberg"; `scripts/vault.py` (Obsidian memory), `scripts/toolbelt.py` (tools + permissions)
 - `site/iceberg.html` — source of the Iceberg explainer page (published as a claude.ai Artifact)
 - `skills/high-performance/` — the skill (SKILL.md is always loaded; `references/` load on demand; `scripts/` are stdlib-only Python)

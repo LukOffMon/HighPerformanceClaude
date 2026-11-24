@@ -58,6 +58,23 @@ class VaultTests(unittest.TestCase):
         self.assertIn("escrito a mano", v.read(d))
         with self.assertRaises(ValueError):
             v.daily("../../x")
+        c = v.capture("llamar a Ana sobre [[Session cookies]]", "2026-01-02")
+        body = v.read(c)
+        self.assertIn("llamar a Ana", body)
+        self.assertLess(body.index("llamar a Ana"), body.index("## Tareas"))  # lands under ## Notas
+        self.assertNotIn("\n- \n", body)  # the empty placeholder bullet is replaced
+        with self.assertRaises(ValueError):
+            v.capture("   ")
+        t = v.new_note("Plan", "- [ ] escribir tests\n- [x] hecho\n* [ ] revisar", "Inbox")
+        open_tasks = [x for x in v.tasks() if x["path"] == t]
+        self.assertEqual([x["text"] for x in open_tasks], ["escribir tests", "revisar"])
+        first = open_tasks[0]
+        self.assertTrue(v.toggle_task(t, first["line"], first["text"])["done"])
+        self.assertIn("- [x] escribir tests", v.read(t))
+        self.assertFalse(any(x["text"] == "escribir tests" for x in v.tasks()))
+        self.assertEqual(next(n for n in v.graph()["nodes"] if n["id"] == t)["open"], 1)  # Neuronas' axon
+        with self.assertRaises(ValueError):
+            v.toggle_task(t, first["line"], "otra cosa")  # file changed under us
         with self.assertRaises(ValueError):
             v.write("../evil.md", "x")
         with self.assertRaises(ValueError):
@@ -125,6 +142,11 @@ class AppAndBridgeTests(unittest.TestCase):
         self.assertTrue(d["path"].startswith("Inbox/Diario/"))
         code, g = self.ui("GET", "/api/graph")
         self.assertTrue(any(n["id"] == d["path"] and n["kind"] == "daily" for n in g["nodes"]))
+        code, c = self.ui("POST", "/api/capture", {"text": "idea rápida"})
+        self.assertEqual(c["path"], d["path"])
+        code, tk = self.ui("GET", "/api/tasks")
+        self.assertEqual(code, 200)
+        self.assertIsInstance(tk["tasks"], list)
         for asset in ("neurons.js", "webstore.js", "app.js"):
             self.assertEqual(req("GET", self.port, "/ui/" + asset)[0], 200)
 

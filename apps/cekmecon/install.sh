@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Toilet Bamboo Paper Çekmecón — macOS / Linux installer (no sudo).
+# Toilet Bamboo Paper GeekMcON — macOS / Linux installer (no sudo).
 #   curl -fsSL https://raw.githubusercontent.com/LukOffMon/HighPerformanceClaude/main/apps/cekmecon/install.sh | bash
 # Installs into its own virtualenv, adds `cekmecon` to ~/.local/bin, an app launcher, connects Claude Code and opens it.
 #   install.sh --uninstall   remove the app (your notes in ~/Cekmecon are kept)
@@ -13,8 +13,8 @@ BIN="$HOME/.local/bin"
 
 if [[ "${1:-}" == "--uninstall" ]]; then
   "$BIN/cekmecon" disconnect 2>/dev/null || true
-  rm -rf "$APPDIR" "$BIN/cekmecon" "$HOME/.local/share/applications/cekmecon.desktop" "$HOME/Applications/Çekmecón.app"
-  echo "✓ Çekmecón removed. Your notes are still in ~/Cekmecon."
+  rm -rf "$APPDIR" "$BIN/cekmecon" "$BIN/geekmcon" "$HOME/.local/share/applications/cekmecon.desktop" "$HOME/Applications/GeekMcON.app" "$HOME/Applications/Çekmecón.app"
+  echo "✓ GeekMcON removed. Your notes are still in ~/Cekmecon."
   exit 0
 fi
 
@@ -28,7 +28,7 @@ if [[ -z "$PY" ]]; then
   exit 1
 fi
 
-echo "→ Installing Çekmecón"
+echo "→ Installing GeekMcON"
 mkdir -p "$APPDIR" "$BIN"
 if "$PY" -m venv "$VENV" >/dev/null 2>&1; then
   "$VENV/bin/python" -m pip install --quiet --upgrade pip >/dev/null 2>&1 || true
@@ -41,10 +41,12 @@ else
 fi
 printf '#!/bin/sh\nexec "%s" -m cekmecon "$@"\n' "$RUN" > "$BIN/cekmecon"
 chmod +x "$BIN/cekmecon"
+ln -sf "$BIN/cekmecon" "$BIN/geekmcon"   # new name, same program
 ICON="$("$RUN" -c 'import cekmecon, os; print(os.path.join(os.path.dirname(cekmecon.__file__), "ui", "icon.png"))')"
 
 if [[ "$(uname)" == "Darwin" ]]; then
-  APP="$HOME/Applications/Çekmecón.app"
+  rm -rf "$HOME/Applications/Çekmecón.app"   # renamed in 1.2
+  APP="$HOME/Applications/GeekMcON.app"
   mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
   printf '#!/bin/sh\nexec "%s" -m cekmecon\n' "$RUN" > "$APP/Contents/MacOS/cekmecon"
   chmod +x "$APP/Contents/MacOS/cekmecon"
@@ -53,20 +55,20 @@ if [[ "$(uname)" == "Darwin" ]]; then
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0"><dict>
-<key>CFBundleName</key><string>Çekmecón</string><key>CFBundleIdentifier</key><string>io.github.lukoffmon.cekmecon</string>
+<key>CFBundleName</key><string>GeekMcON</string><key>CFBundleIdentifier</key><string>io.github.lukoffmon.cekmecon</string>
 <key>CFBundleExecutable</key><string>cekmecon</string><key>CFBundleIconFile</key><string>AppIcon</string>
 <key>CFBundlePackageType</key><string>APPL</string><key>LSUIElement</key><false/>
 </dict></plist>
 PLIST
-  echo "→ App added to ~/Applications (Launchpad / Spotlight: Çekmecón)"
+  echo "→ App added to ~/Applications (Launchpad / Spotlight: GeekMcON)"
 else
   mkdir -p "$HOME/.local/share/applications"
   cat > "$HOME/.local/share/applications/cekmecon.desktop" <<DESK
 [Desktop Entry]
 Type=Application
-Name=Çekmecón
+Name=GeekMcON
 GenericName=Claude memory drawer
-Comment=Toilet Bamboo Paper Çekmecón — Claude's memory drawer
+Comment=Toilet Bamboo Paper GeekMcON — Claude's memory drawer
 Exec=$BIN/cekmecon
 Icon=$ICON
 Categories=Office;Development;
@@ -78,4 +80,4 @@ fi
 "$BIN/cekmecon" connect || true
 ( "$BIN/cekmecon" >/dev/null 2>&1 & )
 case ":$PATH:" in *":$BIN:"*) ;; *) echo "  Note: add $BIN to your PATH to use the cekmecon command.";; esac
-echo "✓ Done. Çekmecón is open. Start Claude Code in any project; the first time, click “Permitir siempre”."
+echo "✓ Done. GeekMcON is open. Start Claude Code in any project; the first time, click “Permitir siempre”."

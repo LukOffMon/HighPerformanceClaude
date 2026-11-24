@@ -1,9 +1,9 @@
-"""Çekmecón command line.
+"""GeekMcON command line.
 
   cekmecon                      open the app (starts it if needed)
   cekmecon --no-window          run in the background (the MCP bridge does this when needed)
   cekmecon --vault PATH         use PATH as the vault from now on (an existing Obsidian vault works)
-  cekmecon connect              register Çekmecón with Claude Code (user scope) and install its skill
+  cekmecon connect              register GeekMcON with Claude Code (user scope) and install its skill
   cekmecon disconnect           remove it from Claude Code and forget the saved token
   cekmecon status               is the app running, which vault, which clients are allowed
   cekmecon mcp                  the MCP stdio server Claude Code launches (you never run this by hand)
@@ -51,8 +51,8 @@ def connect(quiet: bool = False) -> int:
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(SKILL_SRC, dst)
         print(f"✓ Installed the skill at {dst}")
-    print("\nNext: open Çekmecón, then start Claude Code in any project. The first time, Claude asks to use the")
-    print("cekmecon tools and the Çekmecón window asks you to Allow — choose “Always” and it is automatic from then on.")
+    print("\nNext: open GeekMcON, then start Claude Code in any project. The first time, Claude asks to use the")
+    print("cekmecon tools and the GeekMcON window asks you to Allow — choose “Always” and it is automatic from then on.")
     return 0
 
 

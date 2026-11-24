@@ -1,4 +1,4 @@
-"""Local app server: the Çekmecón window (HTML UI), its API, a live activity stream for the
+"""Local app server: the GeekMcON window (HTML UI), its API, a live activity stream for the
 assistant, and the Claude bridge protected by one-time pairing.
 
 Security model (localhost app):
@@ -284,6 +284,8 @@ def make_handler(app: App):
                     return self.send(200, {"results": app.vault.search(q.get("q", [""])[0], 30)})
                 if u.path == "/api/graph":
                     return self.send(200, app.vault.graph())
+                if u.path == "/api/tasks":
+                    return self.send(200, {"tasks": app.vault.tasks(q.get("all", [""])[0] == "1")})
                 if u.path == "/api/events":
                     return self.stream()
                 return self.send(404, {"error": "not found"})
@@ -352,6 +354,14 @@ def make_handler(app: App):
                     path = app.vault.daily(str(a.get("day") or ""))
                     app.emit("save", f"Nota del día {Path(path).stem}", mood="write")
                     return self.send(200, {"path": path})
+                if u.path == "/api/capture":
+                    path = app.vault.capture(str(a.get("text") or ""))
+                    app.emit("save", "Capturado en la nota de hoy", mood="write")
+                    return self.send(200, {"path": path})
+                if u.path == "/api/task/toggle":
+                    r = app.vault.toggle_task(a["path"], int(a["line"]), str(a.get("text") or ""))
+                    app.emit("save", ("Tarea hecha ✓ " if r["done"] else "Tarea reabierta ") + Path(a["path"]).stem, mood="celebrate" if r["done"] else "idle")
+                    return self.send(200, r)
                 if u.path == "/api/organize":
                     return self.send(200, app.org.organize())
                 if u.path == "/api/project/open":
@@ -403,7 +413,7 @@ def auto_connect(app: "App") -> None:
     if os.environ.get("CEKMECON_NO_AUTOCONNECT") or paths.config().get("connected") == want:
         return
     if not claude_cli():
-        app.emit("setup", "No encontré Claude Code en esta PC. Cuando lo instales, abre Çekmecón otra vez y me conecto solo.", mood="think")
+        app.emit("setup", "No encontré Claude Code en esta PC. Cuando lo instales, abre GeekMcON otra vez y me conecto solo.", mood="think")
         return
     try:
         ok = connect() == 0
@@ -417,7 +427,7 @@ def auto_connect(app: "App") -> None:
 def serve(port: int = DEFAULT_PORT, window: bool = True, vault_root: str = "") -> None:
     running = already_running()
     if running:
-        print(f"Çekmecón is already running on http://127.0.0.1:{running}/")
+        print(f"GeekMcON is already running on http://127.0.0.1:{running}/")
         if window:
             open_window(running)
         return

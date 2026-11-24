@@ -1,4 +1,4 @@
-/* Çekmecón Web: the same window running entirely in the browser (GitHub Pages), no install.
+/* GeekMcON Web: the same window running entirely in the browser (GitHub Pages), no install.
    Notes live in this browser's IndexedDB; import a folder of .md files and export everything as a .zip
    that opens in the desktop app or Obsidian. Implements the subset of the local app's HTTP API the UI uses.
    Loaded on every page; only used when the page was not served by the desktop app. */
@@ -95,10 +95,11 @@
     return [...info].filter(([p, x]) => p !== rel && x.links.some(l => names.has(l.toLowerCase()))).map(([p]) => p).sort();
   }
   function graph() {
-    const names = byName(), edges = new Set();
+    const names = byName(), edges = new Set(), open = {};
+    tasks(false).forEach(t => { open[t.path] = (open[t.path] || 0) + 1; });
     for (const [p, i] of info) for (const l of i.links) { const t = names.get(l.toLowerCase()); if (t && t !== p) edges.add(p + "\n" + t); }
     return {
-      nodes: tree().map(n => ({ id: n.path, title: n.title, project: n.project, kind: n.kind, folder: n.path.includes("/") ? n.path.split("/")[0] : "", mtime: Math.round(n.mtime), size: n.size, tags: n.tags })),
+      nodes: tree().map(n => ({ id: n.path, title: n.title, project: n.project, kind: n.kind, folder: n.path.includes("/") ? n.path.split("/")[0] : "", mtime: Math.round(n.mtime), size: n.size, tags: n.tags, open: open[n.path] || 0 })),
       edges: [...edges].sort().map(e => { const [source, target] = e.split("\n"); return { source, target }; }),
     };
   }
@@ -169,13 +170,48 @@
     return p;
   }
 
+  async function capture(text) {
+    text = String(text || "").split(/\s+/).join(" ").trim();
+    if (!text) throw new Error("nota vacía");
+    const p = await daily(), lines = notes.get(p).text.split("\n");
+    const d = new Date(), entry = `- ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")} ${text.slice(0, 2000)}`;
+    let i = lines.findIndex(l => l.trim().toLowerCase() === "## notas");
+    if (i < 0) lines.push(entry);
+    else {
+      i++; while (i < lines.length && !lines[i].startsWith("## ")) i++;
+      while (i > 0 && (lines[i - 1].trim() === "" || lines[i - 1].trim() === "-")) { if (lines[i - 1].trim() === "-") lines.splice(i - 1, 1); i--; }
+      lines.splice(i, 0, entry);
+    }
+    await put(p, lines.join("\n").replace(/\n*$/, "\n"));
+    return p;
+  }
+  const TASK = /^(\s*[-*] \[)( |x|X)(\] )(.*)$/;
+  function tasks(all) {
+    const out = [];
+    for (const n of [...notes.values()].sort((a, b) => b.mtime - a.mtime)) {
+      if (n.path.startsWith("Archive/")) continue;
+      const i = info.get(n.path);
+      n.text.split("\n").forEach((l, k) => { const m = l.match(TASK); if (m && m[4].trim() && (all || m[2] === " ")) out.push({ path: n.path, title: i.title, project: i.project, line: k + 1, text: m[4].trim(), done: m[2] !== " " }); });
+    }
+    return out.sort((a, b) => a.done - b.done).slice(0, 300);
+  }
+  async function toggleTask(rel, line, expect) {
+    const n = notes.get(safe(rel)); if (!n) throw new Error("no existe " + rel);
+    const lines = n.text.split("\n"), m = (lines[line - 1] || "").match(TASK);
+    if (!m || (expect && m[4].trim() !== String(expect).trim())) throw new Error("esa tarea cambió; recarga");
+    const done = m[2] === " ";
+    lines[line - 1] = m[1] + (done ? "x" : " ") + m[3] + m[4];
+    await put(n.path, lines.join("\n"));
+    return { path: n.path, line, done };
+  }
+
   /* ---------- first run: a small sample drawer so the window and Neuronas are not empty ---------- */
   async function seed() {
     const DAY = 86400, t0 = now();
     const S = [
-      ["Welcome.md", 0, "# Bienvenida\n\nEsta es la **versión web** de Çekmecón: corre en tu navegador, sin instalar nada.\n\n- Tus notas se guardan en *este* navegador (no salen a ningún servidor).\n- **Exportar** baja un .zip con todo en Markdown; ábrelo con la app de escritorio u Obsidian.\n- **Importar** sube una carpeta de notas .md.\n- Abre **🧠 Neuronas** para ver tu memoria como una red viva.\n\nEmpieza por [[Perfil]] o por el proyecto [[demo]]. #inicio"],
+      ["Welcome.md", 0, "# Bienvenida\n\nEsta es la **versión web** de GeekMcON: corre en tu navegador, sin instalar nada.\n\n- Tus notas se guardan en *este* navegador (no salen a ningún servidor).\n- **Exportar** baja un .zip con todo en Markdown; ábrelo con la app de escritorio u Obsidian.\n- **Importar** sube una carpeta de notas .md.\n- Abre **🧠 Neuronas** para ver tu memoria como una red viva.\n\nEmpieza por [[Perfil]] o por el proyecto [[demo]]. #inicio"],
       ["Profile.md", 2, "---\ntitle: Perfil\n---\n# Perfil\n\nCómo me gusta trabajar con Claude:\n\n- Respuestas cortas, en español.\n- Probar antes de decir que algo está listo.\n\nVer [[Bienvenida]]."],
-      ["Projects/demo/README.md", 40, "---\nproject: demo\nkind: brief\ntitle: demo\n---\n# demo\n\nApp de ejemplo para ver cómo Çekmecón ordena un proyecto.\n\n- Decisiones: [[Decisions]]\n- Lecciones: [[Lessons]]\n- Tareas: [[Tasks]]\n- Arquitectura: [[Arquitectura]]"],
+      ["Projects/demo/README.md", 40, "---\nproject: demo\nkind: brief\ntitle: demo\n---\n# demo\n\nApp de ejemplo para ver cómo GeekMcON ordena un proyecto.\n\n- Decisiones: [[Decisions]]\n- Lecciones: [[Lessons]]\n- Tareas: [[Tasks]]\n- Arquitectura: [[Arquitectura]]"],
       ["Projects/demo/Decisions.md", 30, "---\nproject: demo\nkind: decisions\n---\n# Decisions\n\n- 2026-10-02 · SQLite con FTS5 para buscar, sin servidor aparte. Ver [[SQLite FTS5]].\n- 2026-10-20 · Deploy en contenedor único. Ver [[Despliegue]]."],
       ["Projects/demo/Lessons.md", 12, "---\nproject: demo\nkind: lessons\n---\n# Lessons\n\n- Usa pnpm, no npm, en demo.\n- Los tests e2e necesitan `PORT=0`. Ver [[Tests]]."],
       ["Projects/demo/Tasks.md", 3, "---\nproject: demo\nkind: tasks\n---\n# Tasks\n\n- [x] Login con Google\n- [ ] Pagos con [[Stripe]]\n- [ ] Revisar [[Accesibilidad]]"],
@@ -227,6 +263,7 @@
       if (p === "/api/resolve") return { path: byName().get(q("title").toLowerCase()) || "" };
       if (p === "/api/search") return { results: search(q("q"), 30) };
       if (p === "/api/graph") return graph();
+      if (p === "/api/tasks") return { tasks: tasks(q("all") === "1") };
       throw new Error("not found");
     }
     if (p === "/api/note") { const r = await put(body.path, body.content); emit("save", "Guardado " + r, "write"); return { path: r }; }
@@ -234,6 +271,8 @@
     if (p === "/api/note/move") return { path: await move(body.path, body.folder) };
     if (p === "/api/note/archive") { const r = await move(body.path, "Archive"); emit("save", "Archivada " + r.split("/").pop(), "idle"); return { path: r }; }
     if (p === "/api/daily") { const r = await daily(body.day); emit("save", "Nota del día " + r.split("/").pop().replace(/\.md$/, ""), "write"); return { path: r }; }
+    if (p === "/api/capture") { const r = await capture(body.text); emit("save", "Capturado en la nota de hoy", "write"); return { path: r }; }
+    if (p === "/api/task/toggle") { const r = await toggleTask(body.path, +body.line, body.text); emit("save", (r.done ? "Tarea hecha ✓ " : "Tarea reabierta ") + r.path.split("/").pop().replace(/\.md$/, ""), r.done ? "celebrate" : "idle"); return r; }
     if (p === "/api/organize") { const r = await organize(); emit("organize", `Ordené el Inbox: ${r.moved.length} movidas`, "celebrate"); return r; }
     if (p === "/api/clients/revoke") return { ok: true };
     throw new Error("not found");
