@@ -3,6 +3,8 @@
 
   site/iceberg.html   -> docs/index.html
   site/cekmecon.html  -> docs/cekmecon/index.html
+  apps/cekmecon/cekmecon/ui + site/cekmecon-app  -> docs/cekmecon/app/   (GeekMcON Web: the desktop window
+                                                    running in the browser, offline-capable PWA)
 
 Sources may inline other repo files with  /*@include relative/path*/  (resolved relative to site/).
 
@@ -10,6 +12,7 @@ Sources may inline other repo files with  /*@include relative/path*/  (resolved 
   python3 tools/build_site.py --check               exit 1 if any docs/ page is stale
   python3 tools/build_site.py --artifact NAME OUT   write site/NAME.html with includes resolved (for publishing as an Artifact)
 """
+import hashlib
 import re
 import sys
 from pathlib import Path
@@ -23,6 +26,23 @@ HEAD = (
     "<style>html,body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>\n"
 )
 EXTRA_HEAD = {"cekmecon": "<style>[hidden]{display:none!important}img{max-width:100%}</style>\n"}
+UI = ROOT / "apps" / "cekmecon" / "cekmecon" / "ui"
+WEBAPP_SRC, WEBAPP = SITE / "cekmecon-app", DOCS / "cekmecon" / "app"
+WEB_UI = ("app.js", "style.css", "mascot.js", "neurons.js", "webstore.js", "logo.svg", "icon.png")
+
+
+def webapp_files() -> dict:
+    """Published path (under docs/cekmecon/app) -> bytes. The page is the desktop window's index.html,
+    left with its placeholder UI key so app.js runs on the in-browser store, plus a manifest link."""
+    files = {f"ui/{n}": (UI / n).read_bytes() for n in WEB_UI}
+    page = (UI / "index.html").read_text(encoding="utf-8").replace(
+        '<link rel="stylesheet" href="ui/style.css">',
+        '<link rel="manifest" href="manifest.webmanifest">\n<link rel="stylesheet" href="ui/style.css">')
+    files["index.html"] = page.encode()
+    files["manifest.webmanifest"] = (WEBAPP_SRC / "manifest.webmanifest").read_bytes()
+    build = hashlib.sha1(b"".join(files[k] for k in sorted(files))).hexdigest()[:12]
+    files["sw.js"] = (WEBAPP_SRC / "sw.js").read_text(encoding="utf-8").replace("__BUILD__", build).encode()
+    return files
 
 
 def resolve(src: str) -> str:
@@ -54,6 +74,16 @@ def main() -> int:
             continue
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(html, encoding="utf-8")
+        print(f"wrote {out.relative_to(ROOT)}")
+    for rel, data in webapp_files().items():
+        out = WEBAPP / rel
+        if "--check" in sys.argv:
+            if not out.exists() or out.read_bytes() != data:
+                print(f"{out.relative_to(ROOT)} is stale — run: python3 tools/build_site.py")
+                stale = 1
+            continue
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_bytes(data)
         print(f"wrote {out.relative_to(ROOT)}")
     if "--check" not in sys.argv:
         (DOCS / ".nojekyll").touch()

@@ -1,4 +1,4 @@
-"""Entry point for the frozen (PyInstaller) builds of Çekmecón."""
+"""Entry point for the frozen (PyInstaller) builds of GeekMcON."""
 import sys
 
 from cekmecon.__main__ import main

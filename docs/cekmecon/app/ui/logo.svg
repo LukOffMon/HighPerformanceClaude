@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="GeekMcON logo: a green bamboo toilet roll with a drawer knob">
+  <defs>
+    <linearGradient id="body" x1="0" x2="1">
+      <stop offset="0" stop-color="#1c7f45"/><stop offset=".35" stop-color="#3cc46f"/><stop offset=".6" stop-color="#2fae5f"/><stop offset="1" stop-color="#17663a"/>
+    </linearGradient>
+    <linearGradient id="sheet" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0" stop-color="#c8f7d4"/><stop offset="1" stop-color="#9eeab5"/>
+    </linearGradient>
+  </defs>
+  <!-- leaves sprouting from the core -->
+  <path d="M58 30 C 50 14, 36 10, 28 12 C 34 22, 46 28, 58 30 Z" fill="#2fa35a"/>
+  <path d="M58 30 C 62 12, 76 4, 88 6 C 82 18, 70 27, 58 30 Z" fill="#46c774"/>
+  <path d="M58 30 C 52 20, 42 15, 30 13" stroke="#1b6d3c" stroke-width="1.4" fill="none"/>
+  <path d="M58 30 C 64 18, 74 10, 86 7" stroke="#1b6d3c" stroke-width="1.4" fill="none"/>
+  <!-- hanging sheet -->
+  <path d="M84 40 H 104 V 116 L 99 112 L 94 116 L 89 112 L 84 116 Z" fill="url(#sheet)"/>
+  <path d="M84 66 H104 M84 90 H104" stroke="#5fcf86" stroke-width="1.6" stroke-dasharray="2.5 2.5"/>
+  <!-- roll -->
+  <path d="M26 32 V 100 A 32 12 0 0 0 90 100 V 32 Z" fill="url(#body)"/>
+  <path d="M27 58 A 31 10 0 0 0 89 58 M27 80 A 31 10 0 0 0 89 80" stroke="#8ee6a8" stroke-opacity=".55" stroke-width="2" fill="none"/>
+  <ellipse cx="58" cy="32" rx="32" ry="12" fill="#a9f0bf"/>
+  <ellipse cx="58" cy="32" rx="25" ry="8.6" fill="#8ee6a8"/>
+  <ellipse cx="58" cy="32" rx="11" ry="4.6" fill="#0f4d2b"/>
+  <!-- drawer (cajón / çekmece) -->
+  <rect x="40" y="63" width="36" height="20" rx="5" fill="#16613a" opacity=".55"/>
+  <rect x="52" y="70" width="12" height="5" rx="2.5" fill="#d8ffe3"/>
+</svg>

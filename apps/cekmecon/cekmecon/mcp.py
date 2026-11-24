@@ -1,4 +1,4 @@
-"""MCP bridge (stdio, JSON-RPC 2.0, one message per line) between Claude and the running Çekmecón app.
+"""MCP bridge (stdio, JSON-RPC 2.0, one message per line) between Claude and the running GeekMcON app.
 
 First use: asks the app for access; you click Allow in the window (Always / Just this session).
 With "Always" the token is kept in ~/.cekmecon/token.json and every later session connects silently.
@@ -91,7 +91,7 @@ def find_port(start_if_closed: bool = True) -> int:
                 time.sleep(0.3)
                 if paths.read_json(paths.running_file(), {}).get("port"):
                     break
-    raise NotReady("Çekmecón is not running on this computer. Open it (Start menu / Applications: “Çekmecón”, or run `cekmecon`) and try again.")
+    raise NotReady("GeekMcON is not running on this computer. Open it (Start menu / Applications: “GeekMcON”, or run `cekmecon`) and try again.")
 
 
 def load_token() -> str:
@@ -111,8 +111,8 @@ def pair(port: int, wait: float) -> str:
                 paths.write_json(paths.state_dir() / TOKEN_FILE, {"token": st["token"], "saved": time.strftime("%Y-%m-%d %H:%M")})
             return st["token"]
         if st.get("status") in ("denied", "expired", "unknown"):
-            raise NotReady(f"Access was {st.get('status')} in the Çekmecón window. Continue without memory, or ask the user to allow it.")
-    raise NotReady("Waiting for the user to click Allow in the Çekmecón window. Tell the user, then call the tool again.")
+            raise NotReady(f"Access was {st.get('status')} in the GeekMcON window. Continue without memory, or ask the user to allow it.")
+    raise NotReady("Waiting for the user to click Allow in the GeekMcON window. Tell the user, then call the tool again.")
 
 
 class Bridge:
@@ -137,7 +137,7 @@ class Bridge:
             if code != 200:
                 raise ValueError(body.get("error", f"HTTP {code}"))
             return body
-        raise NotReady("Could not authenticate with Çekmecón.")
+        raise NotReady("Could not authenticate with GeekMcON.")
 
 
 def fmt(action: str, res: dict) -> str:
@@ -198,7 +198,7 @@ def main() -> None:
                 "protocolVersion": want if want in PROTOCOLS else PROTOCOLS[0],
                 "capabilities": {"tools": {"listChanged": False}},
                 "serverInfo": {"name": "cekmecon", "version": __version__},
-                "instructions": "Çekmecón is the user's local memory drawer. At the start of work in a project call cekmecon_open_project once and use its memory pack instead of re-reading; save decisions, lessons and tasks with cekmecon_remember as you go."}})
+                "instructions": "GeekMcON is the user's local memory drawer. At the start of work in a project call cekmecon_open_project once and use its memory pack instead of re-reading; save decisions, lessons and tasks with cekmecon_remember as you go."}})
         elif method == "ping":
             send({"jsonrpc": "2.0", "id": mid, "result": {}})
         elif method == "tools/list":
@@ -213,7 +213,7 @@ def main() -> None:
             except NotReady as exc:
                 text, err = str(exc), True
             except (ValueError, OSError) as exc:
-                text, err = f"Çekmecón error: {exc}", True
+                text, err = f"GeekMcON error: {exc}", True
             send({"jsonrpc": "2.0", "id": mid, "result": {"content": [{"type": "text", "text": text}], "isError": err}})
         else:
             send({"jsonrpc": "2.0", "id": mid, "error": {"code": -32601, "message": f"method not found: {method}"}})

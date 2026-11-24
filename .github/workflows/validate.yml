@@ -25,7 +25,7 @@ jobs:
           python3 skills/iceberg/scripts/vault.py lesson "CI lesson" --project hpc
           python3 skills/iceberg/scripts/vault.py context hpc | grep -q "CI lesson"
           python3 skills/iceberg/scripts/vault.py recall "smoke test" | grep -q "CI smoke"
-      - name: Çekmecón app tests (vault, organizer, HTTP app, pairing, MCP bridge)
+      - name: GeekMcON app tests (vault, organizer, HTTP app, pairing, MCP bridge)
         run: python3 -m unittest discover -s apps/cekmecon/tests -v
       - name: Smoke-test installer
         run: |

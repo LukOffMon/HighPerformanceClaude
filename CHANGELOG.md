@@ -1,5 +1,28 @@
 # Changelog
 
+## [1.5.0] — 2026-11-24
+### Changed
+- **Çekmecón is now GeekMcON** everywhere you see it: window, web app, site, installers (Start Menu/Desktop shortcut, macOS app and DMG name, Linux menu entry), README and skill (which still triggers on the old name). Technical identifiers stay the same so nothing breaks: the `cekmecon` command, the `cekmecon_*` MCP tools and their saved permissions, `~/Cekmecon`, `~/.cekmecon`, download file names and site URLs. Installers remove the old "Çekmecón" shortcuts/app; new `geekmcon` command alias.
+### Added
+- **GeekMcON 1.2 — master tool:**
+  - Neuronas gains three forms (nine in total): **Neurona** (one dendrite per space with notes as spines, oldest near the soma; an axon whose terminals are the notes with open tasks), **Calendario** (day-by-day heatmap, weeks × weekdays, with counts) and **Matriz** (space × space link counts). Graph nodes now carry `open` (open tasks).
+  - **Quick capture** bar under every view (`Alt+C`): writes `- HH:MM text` under `## Notas` of today's note (`/api/capture`, `Vault.capture`); 🎙 dictation through the browser's speech recognition when available.
+  - **Pendientes**: every open `- [ ]` across the vault (archive skipped) on the home screen and the right panel; tick it in place (`/api/tasks`, `/api/task/toggle`, guarded against stale lines).
+  - **Repasar**: notes from a week, a month and a year ago, and a random note (`Alt+R`).
+  - 🔊 Read the open note aloud; command palette with `>` in `Ctrl+K` (or `Ctrl+Shift+P`), including every Neuronas form; `?` opens the shortcuts sheet.
+  - The web version implements all of the above in the browser.
+- Site: name story, Neuronas demo with the new forms, 1.2 news sheet, comparison rows and FAQ.
+
+## [1.4.0] — 2026-11-24
+### Added
+- **Çekmecón 1.1 — Neuronas** (`apps/cekmecon/cekmecon/ui/neurons.js`): the vault as a living particle network. Six forms that morph into each other (3D brain, force network with orbiting particles, galaxy, clusters, time wheel, stream), synapse pulses along `[[links]]`, colour by project/folder/kind/age, search highlight, isolate a space, zoom/rotate, click a neuron to open the note. Replaces the old graph overlay; live preview on the home screen. Pauses when off-screen; honours reduced motion.
+- **Çekmecón Web** (`docs/cekmecon/app/`): the desktop window running in the browser on `ui/webstore.js` (IndexedDB store implementing the local API: notes, search, backlinks, graph, daily note, organize), with folder import and `.zip` export. Offline-capable, installable PWA (service worker + manifest in `site/cekmecon-app/`).
+- Daily note (`/api/daily`, `Vault.daily`, `Alt+D`), recent notes, light/dark/auto theme, mobile layout with a slide-in drawer panel, online/offline indicator, once-a-day update notice when online.
+- `/api/graph` nodes now carry `folder`, `mtime`, `size` and `tags`.
+- Site (`#leer`): new sheets Neuronas (interactive 600-note demo with all forms and colourings), En el navegador and Novedades; "Abrir en el navegador" hero button; sticky sheet index; neuron fireflies in the grove; `#hash` links unroll the sheet; FAQ on internet use.
+### Changed
+- The window loads its assets with relative paths so the same files serve the desktop app and the web build. `tools/build_site.py` also builds and `--check`s the web app; the validator requires `neurons.js` and `webstore.js`.
+
 ## [1.3.0] — 2026-11-21
 ### Added
 - **Toilet Bamboo Paper Çekmecón** (`apps/cekmecon/`): installable desktop memory app for Claude. Markdown vault (Obsidian-compatible) with SQLite FTS5 index, one drawer per project created automatically (brief, auto map, decisions, lessons, tasks, log), token-budgeted context packs, inbox organizer, lesson de-duplication, backlinks and graph. Localhost UI with Rollito, an original pixel-art assistant that narrates every step.

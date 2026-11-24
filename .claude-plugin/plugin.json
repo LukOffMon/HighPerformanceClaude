@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "hpc",
   "displayName": "High-Performance Claude",
-  "version": "1.3.0",
-  "description": "The definitive coding framework for Claude: say Iceberg and it maps the hidden part of a task, writes a compact self-brief and builds in verified slices. Fewer tokens, fewer mistakes. Obsidian memory, Çekmecón desktop memory app (MCP), toolbelt check (MCP servers, plugins, safe permissions), senior-engineer skill, scout and critic agents, and commands for plan, ship, debug, review, vibecoding and handoff.",
+  "version": "1.5.0",
+  "description": "The definitive coding framework for Claude: say Iceberg and it maps the hidden part of a task, writes a compact self-brief and builds in verified slices. Fewer tokens, fewer mistakes. Obsidian memory, GeekMcON desktop memory app (MCP), toolbelt check (MCP servers, plugins, safe permissions), senior-engineer skill, scout and critic agents, and commands for plan, ship, debug, review, vibecoding and handoff.",
   "author": {
     "name": "LukOffMon",
     "url": "https://github.com/LukOffMon"

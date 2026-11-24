@@ -1,7 +1,7 @@
 """The vault: Markdown files on disk plus a SQLite full-text index (FTS5, BM25 ranking).
 
 Files are the source of truth; the index is a cache rebuilt from mtimes, so editing notes in
-Obsidian, VS Code or the Çekmecón window is always safe.
+Obsidian, VS Code or the GeekMcON window is always safe.
 """
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ WELCOME = """---
 kind: guide
 tags: [cekmecon]
 ---
-# Welcome to Çekmecón
+# Welcome to GeekMcON
 
 This drawer is your memory and Claude's. Everything is plain Markdown, so it also opens in Obsidian.
 
@@ -234,14 +234,20 @@ class Vault:
 
     def graph(self) -> dict:
         with self.lock:
-            notes = self.db.execute("select path, title, project, kind from notes").fetchall()
+            notes = self.db.execute("select path, title, project, kind, mtime, size, tags from notes").fetchall()
             links = self.db.execute("select src, dst from links").fetchall()
         by_name = {}
-        for p, t, _, _ in notes:
+        for p, t, *_ in notes:
             by_name[t.lower()] = p
             by_name[Path(p).stem.lower()] = p
         edges = [(s, by_name[d.lower()]) for s, d in links if d.lower() in by_name and by_name[d.lower()] != s]
-        nodes = [{"id": p, "title": t, "project": pr, "kind": k} for p, t, pr, k in notes]
+        nodes = [{"id": p, "title": t, "project": pr, "kind": k, "folder": p.split("/")[0] if "/" in p else "",
+                  "mtime": round(m or 0), "size": sz or 0, "tags": tg or ""} for p, t, pr, k, m, sz, tg in notes]
+        open_tasks: dict = {}
+        for t in self.tasks(limit=10**6):
+            open_tasks[t["path"]] = open_tasks.get(t["path"], 0) + 1
+        for n in nodes:
+            n["open"] = open_tasks.get(n["id"], 0)
         return {"nodes": nodes, "edges": [{"source": s, "target": t} for s, t in sorted(set(edges))]}
 
     def search(self, q: str, limit: int = 10, project: str = "") -> list:
@@ -309,6 +315,74 @@ class Vault:
         meta.setdefault("created", now())
         content = render_front(meta) + f"# {title}\n\n{body.strip()}\n"
         return self.write(self.rel(p), content)
+
+    def daily(self, day: str = "") -> str:
+        """Today's note (Inbox/Diario/YYYY-MM-DD.md), created on first use. Returns its path."""
+        day = day or today()
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+            raise ValueError("day must be YYYY-MM-DD")
+        rel = f"Inbox/Diario/{day}.md"
+        if not self.safe(rel).exists():
+            self.write(rel, render_front({"kind": "daily", "created": now()}) + f"# {day}\n\n## Notas\n\n- \n\n## Tareas\n\n- [ ] \n")
+        return rel
+
+    def capture(self, text: str, day: str = "") -> str:
+        """Quick capture: append "- HH:MM text" under ## Notas of the day's note. Returns its path."""
+        text = " ".join((text or "").split())
+        if not text:
+            raise ValueError("empty note")
+        rel = self.daily(day)
+        p = self.safe(rel)
+        lines = p.read_text(encoding="utf-8").splitlines()
+        stamp = dt.datetime.now().strftime("%H:%M")
+        entry = f"- {stamp} {text[:2000]}"
+        try:
+            i = next(k for k, l in enumerate(lines) if l.strip().lower() == "## notas") + 1
+            while i < len(lines) and not lines[i].startswith("## "):
+                i += 1
+            while i > 0 and lines[i - 1].strip() in ("", "-"):  # drop the empty "- " placeholder / trailing blanks
+                if lines[i - 1].strip() == "-":
+                    del lines[i - 1]
+                i -= 1
+            lines.insert(i, entry)
+        except StopIteration:
+            lines.append(entry)
+        self.write(rel, "\n".join(lines) + "\n")
+        return rel
+
+    TASK = re.compile(r"^(\s*[-*] \[)( |x|X)(\] )(.*)$")
+
+    def tasks(self, include_done: bool = False, limit: int = 300) -> list:
+        """Every checkbox line in the vault (open ones first, newest notes first). Archive is skipped."""
+        out = []
+        for n in sorted(self.tree(), key=lambda n: -(n["mtime"] or 0)):
+            if n["path"].startswith("Archive/"):
+                continue
+            try:
+                lines = self.read(n["path"]).splitlines()
+            except (OSError, ValueError):
+                continue
+            for i, line in enumerate(lines, 1):
+                m = self.TASK.match(line)
+                if m and m.group(4).strip() and (include_done or m.group(2) == " "):
+                    out.append({"path": n["path"], "title": n["title"], "project": n["project"], "line": i,
+                                "text": m.group(4).strip(), "done": m.group(2) != " "})
+        out.sort(key=lambda t: t["done"])
+        return out[:limit]
+
+    def toggle_task(self, rel: str, line: int, expect: str = "") -> dict:
+        """Tick/untick the checkbox on `line` (1-based). `expect` guards against the file having changed."""
+        p = self.safe(rel)
+        lines = p.read_text(encoding="utf-8").split("\n")
+        if not 1 <= line <= len(lines):
+            raise ValueError("line out of range")
+        m = self.TASK.match(lines[line - 1])
+        if not m or (expect and m.group(4).strip() != expect.strip()):
+            raise ValueError("that task changed; reload")
+        done = m.group(2) == " "
+        lines[line - 1] = m.group(1) + ("x" if done else " ") + m.group(3) + m.group(4)
+        self.write(rel, "\n".join(lines))
+        return {"path": rel, "line": line, "done": done}
 
     def move(self, rel: str, dest_folder: str) -> str:
         src = self.safe(rel)

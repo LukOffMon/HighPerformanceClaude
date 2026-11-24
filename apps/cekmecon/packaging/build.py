@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Build the downloadable Çekmecón program for the current OS (run on each OS, e.g. in CI).
+"""Build the downloadable GeekMcON program for the current OS (run on each OS, e.g. in CI).
 
   Windows -> out/Cekmecon-Setup-Windows.exe   (installer: Start Menu + Desktop, no admin)
-  macOS   -> out/Cekmecon-macOS.dmg           (drag Çekmecón.app to Applications)
+  macOS   -> out/Cekmecon-macOS.dmg           (drag GeekMcON.app to Applications)
   Linux   -> out/Cekmecon-Linux-x86_64.tar.gz (binary + install-linux.sh)
 
 Needs: pip install pyinstaller  (Windows also needs Inno Setup 6: choco install innosetup)
@@ -57,16 +57,16 @@ def macos() -> Path:
     plist = app / "Contents" / "Info.plist"
     import plistlib
     info = plistlib.loads(plist.read_bytes())
-    info.update(CFBundleDisplayName="Çekmecón", CFBundleName="Çekmecón", CFBundleShortVersionString=__version__)
+    info.update(CFBundleDisplayName="GeekMcON", CFBundleName="GeekMcON", CFBundleShortVersionString=__version__)
     plist.write_bytes(plistlib.dumps(info))
     subprocess.run(["codesign", "--force", "--deep", "--sign", "-", str(app)], check=True)  # ad-hoc re-sign after the plist edit
     stage = WORK / "dmg"
     shutil.rmtree(stage, ignore_errors=True)
     stage.mkdir()
-    shutil.copytree(app, stage / "Çekmecón.app", symlinks=True)
+    shutil.copytree(app, stage / "GeekMcON.app", symlinks=True)
     os.symlink("/Applications", stage / "Applications")
     dmg = OUT / "Cekmecon-macOS.dmg"
-    subprocess.run(["hdiutil", "create", "-volname", "Çekmecón", "-srcfolder", str(stage), "-ov", "-format", "UDZO", str(dmg)], check=True)
+    subprocess.run(["hdiutil", "create", "-volname", "GeekMcON", "-srcfolder", str(stage), "-ov", "-format", "UDZO", str(dmg)], check=True)
     return dmg
 
 

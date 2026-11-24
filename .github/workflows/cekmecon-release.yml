@@ -1,6 +1,6 @@
 name: cekmecon-release
 
-# Builds the downloadable Çekmecón program on Windows, macOS and Linux.
+# Builds the downloadable GeekMcON program on Windows, macOS and Linux.
 # Every push that touches the app builds and tests it; pushes to main also publish a GitHub Release,
 # which the site's download buttons point at (releases/latest/download/<file>).
 on:
@@ -71,16 +71,16 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: cekmecon-v${{ steps.v.outputs.version }}
-          name: Çekmecón ${{ steps.v.outputs.version }}
+          name: GeekMcON ${{ steps.v.outputs.version }}
           make_latest: true
           files: out/*
           body: |
-            **Toilet Bamboo Paper Çekmecón** — la app de memoria para Claude.
+            **Toilet Bamboo Paper GeekMcON** — la app de memoria para Claude.
 
             | Sistema | Descarga |
             |---|---|
             | Windows 10/11 | `Cekmecon-Setup-Windows.exe` (instalador, sin admin) |
-            | macOS (Apple Silicon) | `Cekmecon-macOS.dmg` (arrastra Çekmecón a Aplicaciones; la primera vez: clic derecho → Abrir) |
+            | macOS (Apple Silicon) | `Cekmecon-macOS.dmg` (arrastra GeekMcON a Aplicaciones; la primera vez: clic derecho → Abrir) |
             | Linux x86_64 | `Cekmecon-Linux-x86_64.tar.gz` (descomprime y ejecuta `install-linux.sh`) |
 
             Al abrirla por primera vez se registra sola en Claude Code. https://lukoffmon.github.io/HighPerformanceClaude/cekmecon/

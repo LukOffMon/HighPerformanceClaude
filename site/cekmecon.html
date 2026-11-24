@@ -1,6 +1,6 @@
-<title>Toilet Bamboo Paper Çekmecón</title>
+<title>Toilet Bamboo Paper GeekMcON</title>
 <meta name="claude:viewport-fit-sides" content="cover">
-<meta name="description" content="Çekmecón: la app de escritorio que le da memoria a Claude. Un cajón de notas que Claude ordena solo, para que nunca tenga que releer todo.">
+<meta name="description" content="GeekMcON: la app que le da memoria a Claude. Un cajón de notas que Claude ordena solo, Neuronas para ver tu memoria como una red viva, y versión web que funciona sin instalar ni conexión.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='14' y='14' width='32' height='40' rx='4' fill='%232fae5f'/%3E%3Cellipse cx='30' cy='14' rx='16' ry='6' fill='%23a9f0bf'/%3E%3Cellipse cx='30' cy='14' rx='5' ry='2.2' fill='%230f4d2b'/%3E%3Crect x='42' y='22' width='10' height='36' fill='%23c8f7d4'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -110,7 +110,7 @@ body.open .sheet { visibility: visible; animation: unroll 1.8s .75s cubic-bezier
 @keyframes unroll { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
 .ply { position: absolute; top: 12px; right: 18px; font: 600 10px var(--mono); letter-spacing: .16em; color: var(--ink-soft); text-transform: uppercase; }
 
-.hoja { position: relative; padding: 46px clamp(20px, 6vw, 64px) 52px; }
+.hoja { scroll-margin-top: 50px; position: relative; padding: 46px clamp(20px, 6vw, 64px) 52px; }
 .hoja + .hoja { border-top: 2px dashed var(--perf); }
 .hoja + .hoja::before, .hoja + .hoja::after { content: ""; position: absolute; top: -8px; width: 14px; height: 14px; border-radius: 50%; background: var(--night); }
 .hoja + .hoja::before { left: -7px; } .hoja + .hoja::after { right: -7px; }
@@ -183,8 +183,47 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
 .float-buddy .bub { max-width: min(260px, 60vw); background: var(--paper); color: var(--ink); border-radius: 14px 14px 4px 14px; padding: 8px 12px; font-size: 13.5px; margin-bottom: 48px; box-shadow: 0 10px 30px rgba(0,0,0,.4); }
 .float-buddy .bub b { display: block; font: 600 10px var(--mono); letter-spacing: .16em; color: #1f9a52; text-transform: uppercase; }
 
+/* ---------- v1.1: neuronas, web app, index, news ---------- */
+.hero-ctas { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.hero-web { display: inline-flex; gap: 8px; align-items: center; font: 700 16px var(--body); color: var(--mint); background: rgba(13,36,22,.8); border: 2px solid #2c6a44; padding: 10px 20px; border-radius: 99px; text-decoration: none; }
+.hero-web:hover { border-color: var(--leaf); color: var(--paper); }
+.hero-web:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.new-badge { font: 700 10px var(--mono); letter-spacing: .1em; background: var(--gold); color: #3a2c00; border-radius: 6px; padding: 2px 6px; }
+.indice { position: sticky; top: 0; z-index: 4; display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; padding: 10px clamp(14px, 4vw, 40px); background: rgba(242,250,238,.94); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); border-bottom: 1px solid #d5e9d8; }
+.indice::-webkit-scrollbar { display: none; }
+.indice a { flex: none; font: 600 12px var(--body); color: #1f6b40; text-decoration: none; padding: 5px 11px; border-radius: 99px; background: #e2f4e2; white-space: nowrap; }
+.indice a:hover, .indice a.on { background: #0d2416; color: var(--mint); }
+.indice a:focus-visible { outline: 2px solid #1f9a52; outline-offset: 2px; }
+.neuro-stage { height: clamp(380px, 62vh, 540px); margin: 14px 0 10px; border-radius: 18px; overflow: hidden; box-shadow: 0 20px 50px rgba(0,30,15,.35); }
+.neuro-chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 14px; font: 12px var(--mono); color: var(--ink-soft); }
+.neuro-chips button { font: 600 12px var(--body); padding: 5px 11px; border-radius: 99px; border: 1px solid #b9dcc2; background: #fff; color: #134a2a; cursor: pointer; }
+.neuro-chips button[aria-pressed="true"] { background: #0d2416; color: var(--mint); border-color: #0d2416; }
+.neuro-chips button:focus-visible { outline: 2px solid #1f9a52; outline-offset: 2px; }
+.forms { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; margin: 10px 0 4px; }
+.forms button { all: unset; cursor: pointer; display: block; background: #e2f4e2; border-radius: 14px; padding: 10px 14px; font-size: 14px; border: 2px solid transparent; }
+.forms button b { display: block; color: #0f3a22; }
+.forms button[aria-pressed="true"], .forms button:hover { border-color: #2fae5f; }
+.forms button:focus-visible { outline: 2px solid #1f9a52; outline-offset: 2px; }
+.web-card { display: grid; grid-template-columns: minmax(0,1.1fr) minmax(0,1fr); gap: 18px; align-items: center; background: #0d2416; color: var(--mint); border-radius: 22px; padding: 22px; margin: 8px 0 14px; }
+.web-card b { color: var(--paper); font-size: 20px; display: block; margin-bottom: 6px; }
+.web-card ul { margin: 0; padding-left: 18px; color: #a7d6b6; font-size: 14.5px; }
+.web-card li { margin: 4px 0; }
+.web-go { display: flex; flex-direction: column; gap: 4px; align-items: center; justify-content: center; font: 700 16px var(--body); color: #06210f; background: var(--leaf); padding: 14px 22px; border-radius: 16px; text-decoration: none; text-align: center; }
+.web-go:hover { background: var(--mint); }
+.web-go:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+.web-go small { display: block; font: 500 12px var(--mono); color: #0b3a20; overflow-wrap: anywhere; }
+.web-side { display: grid; gap: 10px; }
+.web-net { font: 12px var(--mono); color: #8fc7a2; text-align: center; }
+.web-net i { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #7f97a8; margin-right: 6px; vertical-align: 1px; }
+.web-net.on i { background: var(--leaf); box-shadow: 0 0 0 3px rgba(63,210,122,.25); } .web-net.off i { background: #e0904a; }
+.news { display: grid; gap: 8px; margin-top: 10px; }
+.news div { background: #e2f4e2; border-radius: 14px; padding: 10px 14px 10px 46px; position: relative; font-size: 14.5px; }
+.news div::before { content: attr(data-i); position: absolute; left: 12px; top: 9px; font-size: 20px; }
+.news b { color: #0f3a22; }
+
 @media (max-width: 560px) {
   :root { --r: 70px; --face: 16px; }
+  .web-card { grid-template-columns: minmax(0,1fr); padding: 18px; }
   .buddy-demo { grid-template-columns: 1fr; justify-items: center; text-align: center; }
   .vs td:first-child { min-width: 110px; }
 }
@@ -192,6 +231,7 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
   .pose, .spin, .leaves, .cta, .float-buddy { animation: none !important; transition: none !important; }
   body.open .sheet { animation: none; clip-path: none; }
   .reveal.pending { transform: none; opacity: 1; }
+  .indice { position: static; }
 }
 </style>
 
@@ -200,9 +240,9 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
   <header class="hero" id="top">
     <div>
       <div class="kicker">100% bambú · 2 capas · para Claude</div>
-      <h1>Toilet Bamboo Paper <span class="c">Çekmecón</span></h1>
+      <h1>Toilet Bamboo Paper <span class="c">GeekMcON</span></h1>
       <p class="sub">La app de escritorio que le da memoria a Claude. Un cajón de notas que Claude ordena solo, para que nunca tenga que releer todo desde cero.</p>
-      <p class="name-note">cajón 🇪🇸 + <b>çekmece</b> 🇹🇷 = <b>Çekmecón</b> · el cajón de papel de bambú</p>
+      <p class="name-note"><b>Geek</b> + <b>Mc</b> + <b>ON</b> = <b>GeekMcON</b> · se dice casi igual que su nombre anterior, Çekmecón (“cajón” en turco + español)</p>
     </div>
     <div class="stage">
       <button class="roll-btn" id="roll" aria-label="Desenrollar el rollo y ver todo">
@@ -213,26 +253,39 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
         </div>
       </button>
     </div>
-    <div class="hero-foot"><a class="hero-dl" id="heroDl" href="#instalar">⬇ <span id="heroDlLabel">Descargar para Windows</span></a><div class="cta" id="cta">↓ toca el rollo para ver todo ↓</div></div>
+    <div class="hero-foot"><div class="hero-ctas"><a class="hero-dl" id="heroDl" href="#instalar">⬇ <span id="heroDlLabel">Descargar para Windows</span></a><a class="hero-web" href="app/">🌐 Abrir en el navegador</a></div><div class="cta" id="cta">↓ toca el rollo para ver todo · nuevo en 1.2 ↓</div></div>
   </header>
 
   <main class="sheet" id="sheet" aria-label="Contenido del rollo">
-    <span class="ply">Çekmecón · 2 capas · 8 hojas</span>
+    <span class="ply">GeekMcON 1.2 · 2 capas · 11 hojas</span>
+    <nav class="indice" id="indice" aria-label="Hojas del rollo">
+      <a href="#que-es">Qué es</a><a href="#neuronas">🧠 Neuronas</a><a href="#mejor">Por qué</a><a href="#como">Cómo</a><a href="#rollito">Rollito</a><a href="#instalar">Descargar</a><a href="#web">🌐 Web</a><a href="#conectar">Conectar</a><a href="#herramientas">Herramientas</a><a href="#novedades">Novedades</a><a href="#faq">Preguntas</a>
+    </nav>
 
     <section class="hoja reveal" id="que-es">
-      <div class="num">Hoja 1 de 8 · qué es</div>
+      <div class="num">Hoja 1 de 11 · qué es</div>
       <h2>Un cajón donde Claude guarda lo que aprende</h2>
-      <p class="lead">Cada vez que abres una sesión nueva, Claude empieza en blanco: vuelve a leer archivos, vuelve a preguntar, vuelve a equivocarse en lo mismo. Çekmecón es una app que instalas en tu PC y que le sirve de memoria.</p>
+      <p class="lead">Cada vez que abres una sesión nueva, Claude empieza en blanco: vuelve a leer archivos, vuelve a preguntar, vuelve a equivocarse en lo mismo. GeekMcON es una app que instalas en tu PC y que le sirve de memoria.</p>
       <p>Claude se conecta, abre el cajón de tu proyecto y recibe un resumen de lo importante: qué es el proyecto, cómo se ejecuta, qué se decidió, qué falló antes y qué falta. En unos cientos de tokens, en vez de miles.</p>
-      <div class="etym"><span><b>cajón</b> · español</span><span><b>çekmece</b> · turco, “cajón”</span><span><b>toilet bamboo paper</b> · porque se desenrolla</span></div>
+      <div class="etym"><span><b>Geek</b> · para quien vive en el código</span><span><b>Mc</b> · “hijo de”: hijo de Çekmecón, el cajón</span><span><b>ON</b> · memoria siempre encendida</span><span><b>toilet bamboo paper</b> · porque se desenrolla</span></div>
+    </section>
+
+    <section class="hoja reveal" id="neuronas">
+      <div class="num">Hoja 2 de 11 · neuronas <span class="new-badge">NUEVO</span></div>
+      <h2>Tu memoria, vista como un cerebro vivo</h2>
+      <p class="lead">Neuronas convierte tu cajón en una red de partículas: cada nota es un racimo de luz, cada <code>[[enlace]]</code> es una sinapsis que se enciende. Nueve formas, del cerebro 3D a una sola neurona con sus dendritas, un calendario día a día o la matriz de qué temas se tocan. Gíralo, cambia de forma y haz clic en una neurona para abrir la nota.</p>
+      <div class="neuro-stage" id="neuroDemo" role="region" aria-label="Demostración interactiva de Neuronas con un cajón de ejemplo"></div>
+      <div class="neuro-chips" id="neuroColor" role="group" aria-label="Colorear por"><span>Color:</span></div>
+      <div class="forms" id="neuroForms"></div>
+      <p>Este es un cajón de ejemplo con 600 notas. En la app ves el tuyo, con panel completo: buscar y resaltar, aislar un espacio, contar notas y enlaces, acercar y alejar. Se abre con el botón <b>🧠 Neuronas</b>, con <code>Alt+G</code>, o con <code>Ctrl+K</code> → <code>&gt; Neuronas: Calendario</code>.</p>
     </section>
 
     <section class="hoja reveal" id="mejor">
-      <div class="num">Hoja 2 de 8 · por qué es mejor</div>
-      <h2>Obsidian guarda notas. Çekmecón trabaja con Claude.</h2>
+      <div class="num">Hoja 3 de 11 · por qué es mejor</div>
+      <h2>Obsidian guarda notas. GeekMcON trabaja con Claude.</h2>
       <p>Tus notas siguen siendo Markdown normal, así que también se abren en Obsidian. La diferencia está en lo que hace solo:</p>
       <div class="vs-wrap"><table class="vs">
-        <thead><tr><th>Qué necesitas</th><th>Obsidian</th><th>Çekmecón</th></tr></thead>
+        <thead><tr><th>Qué necesitas</th><th>Obsidian</th><th>GeekMcON</th></tr></thead>
         <tbody>
           <tr><td>Que Claude lo use</td><td>Plugins de terceros, configuración a mano</td><td class="yes">Servidor MCP propio; <code>cekmecon connect</code> y listo</td></tr>
           <tr><td>Organizar</td><td>Tú decides carpetas y etiquetas</td><td class="yes">Un cajón por proyecto, creado y ordenado solo; el Inbox se reparte con un clic</td></tr>
@@ -241,20 +294,24 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
           <tr><td>Buscar</td><td>Búsqueda de texto</td><td class="yes">Índice completo con ranking (BM25), sin acentos que estorben</td></tr>
           <tr><td>Repetición</td><td>Notas duplicadas</td><td class="yes">Lecciones repetidas se detectan y se quitan</td></tr>
           <tr><td>Saber qué pasa</td><td>—</td><td class="yes">Rollito, un asistente en pantalla que narra cada paso de Claude</td></tr>
+          <tr><td>Ver tu memoria</td><td>Vista de grafo 2D</td><td class="yes">Neuronas: seis formas animadas, sinapsis, colores por proyecto, carpeta, tipo o edad</td></tr>
+          <tr><td>Anotar al vuelo</td><td>Abrir una nota y escribir</td><td class="yes">Barra de captura siempre a mano, con dictado por voz, directo a la nota de hoy</td></tr>
+          <tr><td>Tareas</td><td>Plugin aparte</td><td class="yes">Todos los <code>- [ ]</code> del cajón en una lista; se marcan con un clic</td></tr>
+          <tr><td>Sin instalar</td><td>No tiene versión web</td><td class="yes">Versión web gratis que funciona sin conexión</td></tr>
           <tr><td>Permisos</td><td>—</td><td class="yes">Claude pide entrar una vez; tú decides “siempre” o “solo hoy”</td></tr>
         </tbody>
       </table></div>
     </section>
 
     <section class="hoja reveal" id="como">
-      <div class="num">Hoja 3 de 8 · cómo funciona</div>
+      <div class="num">Hoja 4 de 11 · cómo funciona</div>
       <h2>Todo pasa en tu computadora</h2>
-      <div class="flow-wrap"><svg class="flow" viewBox="0 0 680 190" role="img" aria-label="Claude Code habla con el puente MCP, el puente habla con la app Çekmecón en tu PC y la app guarda notas Markdown en tu carpeta">
+      <div class="flow-wrap"><svg class="flow" viewBox="0 0 680 190" role="img" aria-label="Claude Code habla con el puente MCP, el puente habla con la app GeekMcON en tu PC y la app guarda notas Markdown en tu carpeta">
         <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#1f9a52"/></marker></defs>
         <g font-family="Instrument Sans, system-ui, sans-serif" font-size="14" text-anchor="middle">
           <rect x="6" y="50" width="140" height="74" rx="14" fill="#10241a"/><text x="76" y="83" fill="#d8ffe3" font-weight="700">Claude Code</text><text x="76" y="103" fill="#8fc7a2" font-size="12">tu terminal / IDE</text>
           <rect x="182" y="50" width="140" height="74" rx="14" fill="#d5efd9"/><text x="252" y="83" fill="#0f3a22" font-weight="700">Puente MCP</text><text x="252" y="103" fill="#3c6a4e" font-size="12">cekmecon mcp</text>
-          <rect x="358" y="50" width="150" height="74" rx="14" fill="#2fae5f"/><text x="433" y="83" fill="#06210f" font-weight="700">App Çekmecón</text><text x="433" y="103" fill="#0b3a20" font-size="12">127.0.0.1 · Rollito</text>
+          <rect x="358" y="50" width="150" height="74" rx="14" fill="#2fae5f"/><text x="433" y="83" fill="#06210f" font-weight="700">App GeekMcON</text><text x="433" y="103" fill="#0b3a20" font-size="12">127.0.0.1 · Rollito</text>
           <rect x="544" y="50" width="130" height="74" rx="14" fill="#fff" stroke="#9cc9aa" stroke-dasharray="4 4"/><text x="609" y="83" fill="#0f3a22" font-weight="700">~/Cekmecon</text><text x="609" y="103" fill="#3c6a4e" font-size="12">notas .md</text>
           <path d="M146 87H180M322 87H356M508 87H542" stroke="#1f9a52" stroke-width="2.5" marker-end="url(#ar)"/>
           <text x="252" y="36" fill="#3c6a4e" font-size="12">pide permiso una vez</text>
@@ -262,11 +319,11 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
           <text x="609" y="150" fill="#3c6a4e" font-size="12">también abre en Obsidian</text>
         </g>
       </svg></div>
-      <p>La app corre solo en tu PC (escucha en <code>127.0.0.1</code>, nada sale a internet). Claude Code arranca el puente MCP, el puente habla con la app y la app escribe notas Markdown en tu carpeta. Si la app está cerrada cuando Claude la necesita, el puente la abre.</p>
+      <p>La app corre solo en tu PC (escucha en <code>127.0.0.1</code>; tus notas nunca salen a internet). Claude Code arranca el puente MCP, el puente habla con la app y la app escribe notas Markdown en tu carpeta. Si la app está cerrada cuando Claude la necesita, el puente la abre.</p>
     </section>
 
     <section class="hoja reveal" id="rollito">
-      <div class="num">Hoja 4 de 8 · tu asistente</div>
+      <div class="num">Hoja 5 de 11 · tu asistente</div>
       <h2>Rollito te cuenta todo lo que pasa</h2>
       <div class="buddy-demo">
         <div id="demoBuddy"></div>
@@ -279,7 +336,7 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
     </section>
 
     <section class="hoja reveal" id="instalar">
-      <div class="num">Hoja 5 de 8 · descargar</div>
+      <div class="num">Hoja 6 de 11 · descargar</div>
       <h2>Descárgalo e instálalo como cualquier programa</h2>
       <p>Un instalador normal, igual que Obsidian. No necesitas Python ni la terminal. Se instala solo para tu usuario y, al abrirlo por primera vez, se conecta solo a Claude Code.</p>
       <div class="dl-main">
@@ -292,7 +349,7 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
       </div>
       <ol class="steps">
         <li id="stepOpen">Abre <code>Cekmecon-Setup-Windows.exe</code> y pulsa Siguiente. Si Windows muestra “Windows protegió tu PC”, pulsa <b>Más información → Ejecutar de todas formas</b> (el programa aún no está firmado).</li>
-        <li>Abre <b>Çekmecón</b> desde el menú Inicio, el Launchpad o tu menú de aplicaciones. Rollito te saluda y la app se registra sola en Claude Code.</li>
+        <li>Abre <b>GeekMcON</b> desde el menú Inicio, el Launchpad o tu menú de aplicaciones. Rollito te saluda y la app se registra sola en Claude Code.</li>
         <li>Listo. Ve a la hoja siguiente para darle permiso a Claude.</li>
       </ol>
       <details class="alt"><summary>¿Prefieres la terminal? (instala desde el código, necesita Python 3.9+)</summary>
@@ -316,21 +373,40 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
       </details>
     </section>
 
+    <section class="hoja reveal" id="web">
+      <div class="num">Hoja 7 de 11 · en el navegador <span class="new-badge">NUEVO</span></div>
+      <h2>¿Sin tu PC? Ábrelo en el navegador</h2>
+      <p>La misma ventana de GeekMcON corre en cualquier navegador moderno, también en el móvil. Si tienes internet se abre al instante; después de la primera visita funciona hasta sin conexión.</p>
+      <div class="web-card">
+        <div><b>GeekMcON Web</b><ul>
+          <li>Notas, búsqueda, nota del día, Neuronas y Rollito, sin instalar nada.</li>
+          <li>Tus notas se guardan solo en <i>ese</i> navegador: no hay servidor ni cuenta.</li>
+          <li><b style="display:inline;font-size:inherit">⬆ Importar</b> una carpeta de <code style="color:#d8ffe3;background:none">.md</code> y <b style="display:inline;font-size:inherit">⬇ Exportar</b> todo en un .zip que abre la app de escritorio u Obsidian.</li>
+          <li>Instálala como app desde el menú del navegador (“Instalar GeekMcON”).</li>
+        </ul></div>
+        <div class="web-side">
+          <a class="web-go" href="app/" id="webGo">🌐 Abrir GeekMcON Web<small>lukoffmon.github.io/…/cekmecon/app</small></a>
+          <div class="web-net" id="webNet"><i></i><span>comprobando conexión…</span></div>
+        </div>
+      </div>
+      <p>Para que <b>Claude</b> use tu memoria necesitas la app de escritorio: es la que habla con Claude Code en tu computadora. La versión web es tu cajón de bolsillo para leer, escribir y explorar.</p>
+    </section>
+
     <section class="hoja reveal" id="conectar">
-      <div class="num">Hoja 6 de 8 · conectar con Claude</div>
+      <div class="num">Hoja 8 de 11 · conectar con Claude</div>
       <h2>Le das permiso una vez y listo</h2>
       <ol class="steps">
-        <li>Deja Çekmecón abierto (o no: si está cerrado, Claude lo abre).</li>
+        <li>Deja GeekMcON abierto (o no: si está cerrado, Claude lo abre).</li>
         <li>Abre Claude Code en tu proyecto, en esta misma computadora, y pídele cualquier cosa.</li>
         <li>Claude Code te pregunta si puede usar las herramientas <code>cekmecon</code>: elige <b>“Yes, and don’t ask again”</b>.</li>
-        <li>En la ventana de Çekmecón, Rollito te avisa: pulsa <b>Permitir siempre</b>.</li>
+        <li>En la ventana de GeekMcON, Rollito te avisa: pulsa <b>Permitir siempre</b>.</li>
       </ol>
       <div class="prompt-mock" aria-hidden="true"><span class="q">Claude Code quiere abrir tu cajón</span><br>En mi-pc · carpeta ~/proyectos/mi-app<span class="opt on">▸ Permitir siempre</span><span class="opt">Solo esta sesión</span><span class="opt">Rechazar</span></div>
       <p>Desde ahí es automático: cada sesión que abras en esa PC entra sola a su cajón. Si la sesión corre en la nube y no en tu computadora, Claude no intenta conectarse. Puedes revocar el acceso cuando quieras desde el botón <b>Claude</b> de la app.</p>
     </section>
 
     <section class="hoja reveal" id="herramientas">
-      <div class="num">Hoja 7 de 8 · qué hace Claude</div>
+      <div class="num">Hoja 9 de 11 · qué hace Claude</div>
       <h2>Ocho herramientas, cero relectura</h2>
       <div class="tools">
         <div><b>Abrir proyecto</b>Crea o refresca el cajón del proyecto y devuelve la memoria resumida.</div>
@@ -345,13 +421,36 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
       <p style="margin-top:14px">Cada proyecto tiene su cajón: <code>README.md</code> (brief), <code>Map.md</code> (automático), <code>Decisions.md</code>, <code>Lessons.md</code>, <code>Tasks.md</code> y <code>Log.md</code>.</p>
     </section>
 
+    <section class="hoja reveal" id="novedades">
+      <div class="num">Hoja 10 de 11 · qué hay de nuevo</div>
+      <h2>GeekMcON 1.2: la herramienta maestra</h2>
+      <div class="news">
+        <div data-i="✨"><b>Nuevo nombre: GeekMcON.</b> Antes Çekmecón. Se dice casi igual, ahora con más geek. Tus notas, tu carpeta y tus permisos siguen donde estaban; el comando <code>cekmecon</code> sigue funcionando y ahora también <code>geekmcon</code>.</div>
+        <div data-i="🧬"><b>Tres formas nuevas en Neuronas:</b> Neurona (dendritas con tus notas como espinas y un axón con lo que tiene tareas abiertas), Calendario día a día y Matriz de qué espacios se enlazan.</div>
+        <div data-i="⚡"><b>Captura rápida con voz.</b> Una barra siempre abajo: escribe o dicta con 🎙 y se guarda con la hora en la nota de hoy (<code>Alt+C</code>).</div>
+        <div data-i="✅"><b>Pendientes de todo el cajón</b> en una lista; márcalos con un clic sin abrir la nota.</div>
+        <div data-i="🔁"><b>Repasar:</b> lo que escribiste hace una semana, un mes y un año, y una nota al azar (<code>Alt+R</code>).</div>
+        <div data-i="🔊"><b>Leer en voz alta</b> cualquier nota, y comandos con <code>&gt;</code> en <code>Ctrl+K</code>; pulsa <code>?</code> para ver todos los atajos.</div>
+        <div data-i="🧠"><b>1.1 · Neuronas.</b> Formas para ver tu memoria (cerebro, red, galaxia, clústeres, rueda y corriente) que se transforman entre sí. Las sinapsis se encienden a lo largo de los enlaces. Colorea por proyecto, carpeta, tipo o edad.</div>
+        <div data-i="🌐"><b>Versión web.</b> La ventana completa en el navegador, instalable y sin conexión, con importar y exportar.</div>
+        <div data-i="📅"><b>Nota del día.</b> Un clic (o <code>Alt+D</code>) y tienes <code>Inbox/Diario/AAAA-MM-DD.md</code> lista con notas y tareas.</div>
+        <div data-i="🏠"><b>Inicio nuevo.</b> Vista previa viva de Neuronas, notas recientes y un indicador de conexión.</div>
+        <div data-i="◐"><b>Tema claro, oscuro o automático</b>, y la ventana se adapta al móvil con un panel de cajones deslizable.</div>
+        <div data-i="🔔"><b>Aviso de versiones.</b> Si hay internet, Rollito te avisa una vez al día cuando sale una versión nueva.</div>
+      </div>
+    </section>
+
     <section class="hoja reveal faq" id="faq">
-      <div class="num">Hoja 8 de 8 · preguntas</div>
+      <div class="num">Hoja 11 de 11 · preguntas</div>
       <h2>Lo que te vas a preguntar</h2>
       <details><summary>¿Mis notas salen de mi computadora?</summary><p>No. La app solo escucha en 127.0.0.1, rechaza peticiones de otros sitios web y nunca escribe fuera de tu carpeta de notas. Lo que Claude lee, lo lee a través de tu sesión de Claude Code.</p></details>
-      <details><summary>¿Puedo usar mi bóveda de Obsidian?</summary><p>Sí: <code>cekmecon --vault "ruta/a/tu/boveda"</code>. Çekmecón crea sus carpetas (Inbox, Projects, Knowledge, Archive) y respeta todo lo demás. Puedes tener Obsidian abierto a la vez; los cambios se detectan solos.</p></details>
+      <details><summary>¿Puedo usar mi bóveda de Obsidian?</summary><p>Sí: <code>cekmecon --vault "ruta/a/tu/boveda"</code>. GeekMcON crea sus carpetas (Inbox, Projects, Knowledge, Archive) y respeta todo lo demás. Puedes tener Obsidian abierto a la vez; los cambios se detectan solos.</p></details>
       <details><summary>¿Y si cambio de opinión sobre el permiso?</summary><p>Botón <b>Claude</b> en la app, luego <b>Revocar</b>. O desde la terminal: <code>cekmecon disconnect</code>.</p></details>
       <details><summary>¿Qué necesito instalado?</summary><p>Python 3.9 o superior (el instalador de Windows lo pone por ti) y Claude Code. La app no tiene más dependencias.</p></details>
+      <details><summary>Ahora se llama GeekMcON, ¿tengo que hacer algo?</summary><p>No. <b>GeekMcON</b> es el nuevo nombre de Çekmecón y suena casi igual. No tienes que hacer nada: la carpeta <code>~/Cekmecon</code>, los permisos de Claude y el comando <code>cekmecon</code> siguen igual.</p></details>
+      <details><summary>¿Necesito internet?</summary><p>No. La app de escritorio funciona sin conexión; con internet solo consulta, una vez al día, si hay una versión nueva, y el dictado por voz usa el servicio de voz de tu navegador. La versión web necesita internet la primera vez que la abres y luego también funciona offline.</p></details>
+      <details><summary>¿La versión web ve las notas de mi PC?</summary><p>No, a propósito: la app de escritorio rechaza cualquier petición de otros sitios web, incluida esta página. Para pasar notas de un lado a otro usa <b>Exportar</b> e <b>Importar</b> (archivos .md normales).</p></details>
+      <details><summary>¿Neuronas aguanta muchas notas?</summary><p>Sí. Dibuja hasta ~14.000 partículas con el procesador gráfico del navegador y agrupa en “Otros” cuando hay más de 12 espacios. Si tu sistema pide menos movimiento, se queda quieto.</p></details>
       <details><summary>¿Se borra algo?</summary><p>Nunca. Archivar mueve la nota a <code>Archive/</code>. Las notas que escribes tú no se reescriben; Claude solo agrega o crea notas nuevas.</p></details>
     </section>
 
@@ -367,6 +466,7 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
 <div class="float-buddy" aria-live="polite"><div class="bub" id="floatSay"><b>Rollito</b>¡Desenrollando!</div><div id="floatBuddy"></div></div>
 
 <script>/*@include ../apps/cekmecon/cekmecon/ui/mascot.js*/</script>
+<script>/*@include ../apps/cekmecon/cekmecon/ui/neurons.js*/</script>
 <script>
 (() => {
   const $ = s => document.querySelector(s);
@@ -418,8 +518,26 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
       ctx.restore();
     }
   }
-  sizeGrove(); addEventListener("resize", sizeGrove);
-  (function loop(t) { drawGrove(t || 0); if (!reduce) requestAnimationFrame(loop); })();
+  /* fireflies that link up like neurons when they drift close */
+  let flies = [];
+  function sizeFlies() { flies = Array.from({ length: Math.min(46, Math.round(W * H / 26000)) }, () => ({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .25, vy: (Math.random() - .5) * .25, p: Math.random() * 6 })); }
+  function drawFlies(t) {
+    ctx.save(); ctx.globalCompositeOperation = "lighter";
+    for (const f of flies) { if (!reduce) { f.x = (f.x + f.vx + W) % W; f.y = (f.y + f.vy + H) % H; } }
+    ctx.lineWidth = 1;
+    for (let i = 0; i < flies.length; i++) for (let j = i + 1; j < flies.length; j++) {
+      const a = flies[i], b = flies[j], d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (d < 130) { ctx.strokeStyle = `rgba(127,230,255,${(1 - d / 130) * .16})`; ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke(); }
+    }
+    for (const f of flies) {
+      const k = .45 + .55 * Math.sin(t / 900 + f.p) ** 2, g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, 9);
+      g.addColorStop(0, `rgba(220,255,200,${.85 * k})`); g.addColorStop(.3, `rgba(127,230,160,${.35 * k})`); g.addColorStop(1, "rgba(127,230,160,0)");
+      ctx.fillStyle = g; ctx.fillRect(f.x - 9, f.y - 9, 18, 18);
+    }
+    ctx.restore();
+  }
+  sizeGrove(); sizeFlies(); addEventListener("resize", () => { sizeGrove(); sizeFlies(); });
+  (function loop(t) { if (!document.hidden) { drawGrove(t || 0); drawFlies(t || 0); } if (!reduce) requestAnimationFrame(loop); })();
 
   /* mascots */
   const demo = Rollito.mount($("#demoBuddy"), { size: 120, sleepAfter: 0 });
@@ -451,6 +569,9 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
 
   const SECTION_LINES = {
     "que-es": ["Este soy yo, el cajón. Bueno, el rollo. Bueno, ambos.", "wave"],
+    "neuronas": ["¡Mira! Así se ve una memoria por dentro. Arrastra para girarla.", "think"],
+    "web": ["¿Sin tu PC? Ábreme en el navegador, hasta sin internet.", "celebrate"],
+    "novedades": ["Versión 1.1: me puse guapo.", "celebrate"],
     "mejor": ["Spoiler: Obsidian no ordena solo.", "think"],
     "como": ["Todo se queda en tu PC. Prometido.", "read"],
     "rollito": ["¡Ey, ese soy yo!", "celebrate"],
@@ -477,7 +598,7 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
     if (body.classList.contains("open")) return;
     document.querySelectorAll(".reveal").forEach(el => { const r = el.getBoundingClientRect(); if (r.top > innerHeight) el.classList.add("pending"); });
     body.classList.add("open"); body.classList.remove("rolled");
-    $("#roll").setAttribute("aria-label", "Rollo de Çekmecón");
+    $("#roll").setAttribute("aria-label", "Rollo de GeekMcON");
     floatSay("¡Desenrollando! Baja para ver todo lo que trae.", "celebrate");
     try { history.replaceState(null, "", "#leer"); } catch {}
     setTimeout(() => (document.getElementById(target) || $("#que-es")).scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "start" }), reduce ? 0 : 1500);
@@ -488,6 +609,7 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
     setTimeout(() => { body.classList.remove("open"); try { history.replaceState(null, "", " "); } catch {} }, reduce ? 0 : 700);
   });
   if (location.hash && location.hash !== "#top") { open(location.hash.slice(1)); }
+  addEventListener("hashchange", () => { const id = location.hash.slice(1); if (id && id !== "top" && id !== "leer" && !body.classList.contains("open")) open(id); });
 
   /* the lying roll turns as the paper scrolls past: one turn per 2πr pixels */
   let ticking = false;
@@ -495,6 +617,51 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
     if (ticking) return; ticking = true;
     requestAnimationFrame(() => { const r = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--r")) || 92; spin.style.setProperty("--rot", (scrollY / (2 * Math.PI * r) * 360) + "deg"); ticking = false; });
   }, { passive: true });
+
+  /* Neuronas demo: mounted when its sheet first comes close to view */
+  const FORM_INFO = {
+    cerebro: "Las notas forman un cerebro 3D; cada espacio ocupa su lóbulo.",
+    neurona: "Una sola neurona: cada espacio es una dendrita y tus notas son sus espinas; el axón lleva lo que tiene tareas abiertas.",
+    matriz: "Qué espacios se hablan: cada cuadro cuenta los enlaces entre dos espacios.",
+    calendario: "Día a día: columnas son semanas, filas son días; cada nota cae en el día que la tocaste.", red: "Red de fuerzas: lo enlazado se acerca y las partículas orbitan su nota.",
+    galaxia: "Un brazo por espacio; lo antiguo en el centro, lo nuevo en la orilla.", clusters: "Un racimo por espacio, del tamaño de lo que guarda.",
+    rueda: "Un año en un reloj: el ángulo es la fecha, el anillo es el espacio.", corriente: "El río del tiempo: cuánto escribiste en cada espacio, semana a semana.",
+  };
+  let demoNv = null;
+  function syncDemo() {
+    document.querySelectorAll("#neuroForms button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === demoNv.form)));
+  }
+  function mountDemo() {
+    if (demoNv) return;
+    demoNv = Neuronas.mount($("#neuroDemo"), { data: Neuronas.demo(600, 7), compact: true, title: "ejemplo", onChange: syncDemo, max: innerWidth < 600 ? 5000 : 9000,
+      onOpen: () => floatSay("En la app, este clic abre la nota. Aquí es un cajón de ejemplo.", "read") });
+    $("#neuroForms").innerHTML = Neuronas.FORMS.map(([k, l]) => `<button type="button" data-v="${k}"><b>${l}</b>${FORM_INFO[k]}</button>`).join("");
+    $("#neuroForms").addEventListener("click", e => { const b = e.target.closest("button"); if (b) { demoNv.setForm(b.dataset.v); floatSay(FORM_INFO[b.dataset.v], "think"); } });
+    [["project", "Proyecto"], ["folder", "Carpeta"], ["kind", "Tipo"], ["age", "Edad"]].forEach(([k, l], i) => {
+      const b = document.createElement("button"); b.type = "button"; b.textContent = l; b.setAttribute("aria-pressed", String(!i));
+      b.onclick = () => { demoNv.setColor(k); $("#neuroColor").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b))); };
+      $("#neuroColor").append(b);
+    });
+    syncDemo();
+  }
+  new IntersectionObserver((es, o) => { if (es.some(e => e.isIntersecting)) { mountDemo(); o.disconnect(); } }, { rootMargin: "300px" }).observe($("#neuroDemo"));
+
+  /* index chips follow the sheet you are reading */
+  const chips = [...document.querySelectorAll("#indice a")];
+  const sio = new IntersectionObserver(es => es.forEach(e => {
+    if (!e.isIntersecting) return;
+    chips.forEach(a => { const on = a.getAttribute("href") === "#" + e.target.id; a.classList.toggle("on", on); if (on) a.scrollIntoView({ block: "nearest", inline: "center" }); });
+  }), { rootMargin: "-40% 0px -55% 0px" });
+  document.querySelectorAll(".hoja").forEach(h => sio.observe(h));
+
+  /* web app: say whether it can be opened right now */
+  function webNet() {
+    const on = navigator.onLine !== false, el = $("#webNet");
+    el.className = "web-net " + (on ? "on" : "off");
+    el.querySelector("span").textContent = on ? "Con internet: se abre al instante" : "Sin internet: si ya la abriste antes, funciona igual";
+  }
+  webNet(); addEventListener("online", webNet); addEventListener("offline", webNet);
+  $("#webGo").addEventListener("click", () => floatSay("¡Nos vemos en el navegador!", "celebrate"));
 
   /* tabs + copy */
   const tabs = [...document.querySelectorAll('[role="tab"]')];
@@ -506,7 +673,7 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
   if (os === "mac") tabs[1].click(); else if (os === "lin") tabs[2].click();
   const DL = {
     win: ["Descargar para Windows", "Cekmecon-Setup-Windows.exe · Windows 10 y 11", 'Abre <code>Cekmecon-Setup-Windows.exe</code> y pulsa Siguiente. Si Windows muestra “Windows protegió tu PC”, pulsa <b>Más información → Ejecutar de todas formas</b> (el programa aún no está firmado).'],
-    mac: ["Descargar para Mac", "Cekmecon-macOS.dmg · Apple Silicon (M1–M4)", 'Abre <code>Cekmecon-macOS.dmg</code> y arrastra <b>Çekmecón</b> a Aplicaciones. La primera vez macOS lo bloquea porque aún no está firmado: ve a <b>Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente</b>.'],
+    mac: ["Descargar para Mac", "Cekmecon-macOS.dmg · Apple Silicon (M1–M4)", 'Abre <code>Cekmecon-macOS.dmg</code> y arrastra <b>GeekMcON</b> a Aplicaciones. La primera vez macOS lo bloquea porque aún no está firmado: ve a <b>Ajustes del Sistema → Privacidad y seguridad → Abrir igualmente</b>.'],
     lin: ["Descargar para Linux", "Cekmecon-Linux-x86_64.tar.gz · x86_64", 'Descomprime <code>Cekmecon-Linux-x86_64.tar.gz</code> y ejecuta <code>./install-linux.sh</code> dentro de la carpeta. Queda en tu menú de aplicaciones.'],
   };
   const mine = document.querySelector(`.dl[data-os="${os}"]`);
