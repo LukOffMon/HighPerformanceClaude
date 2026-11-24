@@ -348,6 +348,10 @@ def make_handler(app: App):
                     path = app.vault.archive(a["path"])
                     app.emit("save", f"Archivada {Path(path).name}", mood="idle")
                     return self.send(200, {"path": path})
+                if u.path == "/api/daily":
+                    path = app.vault.daily(str(a.get("day") or ""))
+                    app.emit("save", f"Nota del día {Path(path).stem}", mood="write")
+                    return self.send(200, {"path": path})
                 if u.path == "/api/organize":
                     return self.send(200, app.org.organize())
                 if u.path == "/api/project/open":

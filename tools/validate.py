@@ -146,7 +146,7 @@ def check_cekmecon() -> None:
             compile(py.read_text(encoding="utf-8"), str(py), "exec")
         except SyntaxError as exc:
             err(f"{py.relative_to(ROOT)}: does not compile: {exc}")
-    for name in ("index.html", "app.js", "style.css", "mascot.js", "logo.svg", "icon.ico", "icon.png"):
+    for name in ("index.html", "app.js", "style.css", "mascot.js", "neurons.js", "webstore.js", "logo.svg", "icon.ico", "icon.png"):
         if not (app / "cekmecon/ui" / name).exists():
             err(f"apps/cekmecon/cekmecon/ui/{name} is missing")
 

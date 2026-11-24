@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.4.0] — 2026-11-24
+### Added
+- **Çekmecón 1.1 — Neuronas** (`apps/cekmecon/cekmecon/ui/neurons.js`): the vault as a living particle network. Six forms that morph into each other (3D brain, force network with orbiting particles, galaxy, clusters, time wheel, stream), synapse pulses along `[[links]]`, colour by project/folder/kind/age, search highlight, isolate a space, zoom/rotate, click a neuron to open the note. Replaces the old graph overlay; live preview on the home screen. Pauses when off-screen; honours reduced motion.
+- **Çekmecón Web** (`docs/cekmecon/app/`): the desktop window running in the browser on `ui/webstore.js` (IndexedDB store implementing the local API: notes, search, backlinks, graph, daily note, organize), with folder import and `.zip` export. Offline-capable, installable PWA (service worker + manifest in `site/cekmecon-app/`).
+- Daily note (`/api/daily`, `Vault.daily`, `Alt+D`), recent notes, light/dark/auto theme, mobile layout with a slide-in drawer panel, online/offline indicator, once-a-day update notice when online.
+- `/api/graph` nodes now carry `folder`, `mtime`, `size` and `tags`.
+- Site (`#leer`): new sheets Neuronas (interactive 600-note demo with all forms and colourings), En el navegador and Novedades; "Abrir en el navegador" hero button; sticky sheet index; neuron fireflies in the grove; `#hash` links unroll the sheet; FAQ on internet use.
+### Changed
+- The window loads its assets with relative paths so the same files serve the desktop app and the web build. `tools/build_site.py` also builds and `--check`s the web app; the validator requires `neurons.js` and `webstore.js`.
+
 ## [1.3.0] — 2026-11-21
 ### Added
 - **Toilet Bamboo Paper Çekmecón** (`apps/cekmecon/`): installable desktop memory app for Claude. Markdown vault (Obsidian-compatible) with SQLite FTS5 index, one drawer per project created automatically (brief, auto map, decisions, lessons, tasks, log), token-budgeted context packs, inbox organizer, lesson de-duplication, backlinks and graph. Localhost UI with Rollito, an original pixel-art assistant that narrates every step.

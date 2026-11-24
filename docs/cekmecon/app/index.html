@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="cekmecon-ui" content="__UI_KEY__">
+<meta name="theme-color" content="#0b140f">
+<meta name="description" content="Çekmecón: la memoria de Claude. Notas Markdown que se ordenan solas, búsqueda instantánea y Neuronas, tu memoria como una red viva.">
+<title>Çekmecón</title>
+<link rel="icon" href="ui/logo.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="ui/icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="ui/style.css">
+</head>
+<body>
+<header class="top">
+  <button id="sideBtn" class="ghost side-btn" title="Cajones" aria-label="Mostrar cajones" aria-expanded="false">☰</button>
+  <div class="brand"><img src="ui/logo.svg" alt=""><div><b>Çekmecón</b><small>Toilet Bamboo Paper</small></div></div>
+  <button class="search-btn" id="searchBtn" title="Buscar (Ctrl+K)"><span>Buscar en todo…</span><kbd>Ctrl K</kbd></button>
+  <nav class="actions">
+    <button id="newBtn" title="Nota nueva (Ctrl+N)">＋ Nota</button>
+    <button id="organizeBtn" title="Ordenar el Inbox, enlazar y quitar duplicados">✨ Organizar</button>
+    <button id="dailyBtn" title="Nota de hoy (Alt+D)">📅 Hoy</button>
+    <button id="graphBtn" title="Neuronas: tu memoria como red viva (Alt+G)">🧠 Neuronas</button>
+    <button id="clientsBtn" class="local-only" title="Conexiones con Claude">🔌 Claude <span id="clientCount" class="pill">0</span></button>
+    <button id="importBtn" class="web-only" title="Importar una carpeta de notas .md">⬆ Importar</button>
+    <button id="exportBtn" class="web-only" title="Descargar todas tus notas en un .zip">⬇ Exportar</button>
+    <button id="themeBtn" class="ghost" title="Tema: automático / claro / oscuro" aria-label="Cambiar tema">◐</button>
+    <span id="netDot" class="net" title=""></span>
+  </nav>
+</header>
+<main class="layout">
+  <aside class="side" id="side">
+    <div class="side-head"><span>Cajones</span><button id="reloadBtn" class="ghost" title="Recargar">↻</button></div>
+    <div id="tree" class="tree"></div>
+    <div class="side-foot" id="stats"></div>
+  </aside>
+  <section class="center">
+    <div id="home" class="home"></div>
+    <div id="editor" class="editor hidden">
+      <div class="ed-head">
+        <div class="crumbs" id="crumbs"></div>
+        <div class="ed-actions">
+          <span id="saveState" class="muted"></span>
+          <div class="seg"><button data-mode="read" class="on">Leer</button><button data-mode="edit">Editar</button><button data-mode="split">Ambos</button></div>
+          <button id="archiveBtn" class="ghost" title="Archivar (nunca se borra)">🗄</button>
+        </div>
+      </div>
+      <div class="ed-body mode-read" id="edBody">
+        <textarea id="src" spellcheck="false" aria-label="Markdown"></textarea>
+        <article id="preview" class="md"></article>
+      </div>
+    </div>
+  </section>
+  <aside class="right">
+    <section><h4>Enlaces entrantes</h4><div id="backlinks" class="list muted">—</div></section>
+    <section><h4>Índice</h4><div id="outline" class="list muted">—</div></section>
+    <section class="grow"><h4>Actividad</h4><div id="activity" class="feed"></div></section>
+  </aside>
+</main>
+
+<div id="buddy" class="buddy" title="Rollito, tu asistente">
+  <div class="bubble" id="bubble"><b>Rollito</b><span id="bubbleText">¡Hola!</span></div>
+  <div id="buddyMount"></div>
+</div>
+
+<div id="palette" class="overlay hidden" role="dialog" aria-label="Buscar">
+  <div class="pal">
+    <input id="palInput" placeholder="Busca notas, decisiones, lecciones… (Enter abre)" autocomplete="off">
+    <div id="palResults" class="pal-results"></div>
+  </div>
+</div>
+
+<div id="graph" class="overlay neuro hidden" role="dialog" aria-label="Neuronas">
+  <div class="neuro-box" id="neuroMount"></div>
+</div>
+<input type="file" id="importInput" class="hidden" multiple webkitdirectory accept=".md,.markdown,text/markdown">
+
+<div id="clients" class="overlay hidden" role="dialog" aria-label="Conexiones">
+  <div class="card-box"><div class="graph-head"><b>Conexiones con Claude</b><button class="ghost" data-close>✕</button></div><div id="clientList"></div>
+    <div class="howto"><h4>Conectar Claude Code</h4><ol><li>Ejecuta una vez: <code>cekmecon connect</code></li><li>Abre Claude Code en tu proyecto y pídele algo.</li><li>La primera vez aparece aquí un aviso: pulsa <b>Permitir siempre</b>. Listo, desde entonces es automático.</li></ol></div>
+  </div>
+</div>
+
+<div id="pair" class="overlay hidden" role="alertdialog" aria-label="Solicitud de conexión">
+  <div class="card-box pair-box">
+    <div id="pairMascot"></div>
+    <h3><span id="pairClient">Claude</span> quiere abrir tu cajón</h3>
+    <p class="muted" id="pairWhere"></p>
+    <p>Podrá leer tus notas, guardar decisiones y lecciones, y ordenar los cajones. Nunca toca archivos fuera de tu bóveda.</p>
+    <div class="pair-actions"><button class="primary" id="pairAlways">Permitir siempre</button><button id="pairOnce">Solo esta sesión</button><button class="ghost" id="pairDeny">Rechazar</button></div>
+  </div>
+</div>
+<div id="toast" class="toast hidden"></div>
+<script src="ui/mascot.js"></script>
+<script src="ui/neurons.js"></script>
+<script src="ui/webstore.js"></script>
+<script src="ui/app.js"></script>
+</body>
+</html>

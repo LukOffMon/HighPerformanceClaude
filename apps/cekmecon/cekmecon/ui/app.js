@@ -1,6 +1,10 @@
-/* Çekmecón window. Vanilla JS, no build step. */
+/* Çekmecón window. Vanilla JS, no build step.
+   Served by the desktop app (127.0.0.1, real UI key) it talks to the local API; opened anywhere else
+   (GitHub Pages, a file) it runs on CekmeconWeb, the in-browser store in webstore.js. */
 (() => {
-  const KEY = document.querySelector('meta[name="cekmecon-ui"]').content;
+  const KEY = (document.querySelector('meta[name="cekmecon-ui"]') || {}).content || "";
+  const WEB = !KEY || KEY === "__UI_" + "KEY__" || !window.EventSource;
+  document.documentElement.classList.add(WEB ? "is-web" : "is-local");
   const $ = s => document.querySelector(s);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const S = { tree: [], folders: [], stats: {}, current: null, text: "", dirty: false, mode: localGet("mode") || "read", pending: [], shownPair: null };
@@ -8,12 +12,28 @@
   function localGet(k) { try { return localStorage.getItem("cek." + k); } catch { return null; } }
   function localSet(k, v) { try { localStorage.setItem("cek." + k, v); } catch { } }
   async function api(path, body) {
+    if (WEB) return CekmeconWeb.api(path, body);
     const r = await fetch(path, body === undefined ? { headers: { "X-Cekmecon-UI": KEY } }
       : { method: "POST", headers: { "X-Cekmecon-UI": KEY, "Content-Type": "application/json" }, body: JSON.stringify(body) });
     const j = await r.json();
     if (!r.ok) throw new Error(j.error || r.status);
     return j;
   }
+  /* ---------- theme, sidebar, connection ---------- */
+  const THEMES = ["", "light", "dark"], THEME_NAMES = { "": "automático", light: "claro", dark: "oscuro" };
+  function applyTheme(t) { if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme; $("#themeBtn").title = "Tema: " + THEME_NAMES[t]; }
+  applyTheme(localGet("theme") || "");
+  $("#themeBtn").onclick = () => { const t = THEMES[(THEMES.indexOf(localGet("theme") || "") + 1) % 3]; localSet("theme", t); applyTheme(t); toast("Tema " + THEME_NAMES[t]); };
+  $("#sideBtn").onclick = () => { const o = $("#side").classList.toggle("open"); $("#sideBtn").setAttribute("aria-expanded", String(o)); };
+  function netStatus() {
+    const on = navigator.onLine !== false;
+    $("#netDot").className = "net " + (on ? "on" : "off");
+    $("#netDot").title = WEB ? (on ? "En línea · versión web (tus notas viven en este navegador)" : "Sin conexión · sigue funcionando offline")
+      : (on ? "App local · con internet" : "App local · sin internet (todo sigue funcionando)");
+  }
+  addEventListener("online", () => { netStatus(); say("Volvió la conexión a internet.", "celebrate"); });
+  addEventListener("offline", () => { netStatus(); say(WEB ? "Sin internet: sigo funcionando, todo se guarda aquí." : "Sin internet: no pasa nada, todo vive en tu PC.", "think"); });
+
   function toast(t) { const el = $("#toast"); el.textContent = t; el.classList.remove("hidden"); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.add("hidden"), 2400); }
 
   /* ---------- assistant ---------- */
@@ -44,10 +64,11 @@
     $("#activity").innerHTML = "";
     st.events.forEach(addEvent);
     if (st.pending.length) showPair(st.pending[0]);
+    return st;
   }
   function renderStats() {
     const s = S.stats;
-    $("#stats").innerHTML = `${s.notes} notas · ${s.links} enlaces · ${s.projects.length} proyectos<br><span title="${esc(s.vault)}">📁 ${esc(s.vault)}</span>`;
+    $("#stats").innerHTML = `${s.notes} notas · ${s.links} enlaces · ${s.projects.length} proyectos<br><span title="${esc(s.vault)}">${WEB ? "🌐" : "📁"} ${esc(s.vault)}</span>`;
   }
 
   /* ---------- tree ---------- */
@@ -70,6 +91,7 @@
         const path = prefix ? prefix + "/" + name : name;
         out += `<details class="folder" data-path="${esc(path)}" ${open.has(path) ? "open" : ""}><summary>${icon[name] || (prefix === "Projects" ? "🧻" : "📁")} ${esc(name)}<span class="count">${count(n.dirs[name])}</span></summary>${html(n.dirs[name], path)}</details>`;
       }
+      if (!prefix && n.notes.length) out += '<div class="tree-sep">Raíz</div>';
       for (const note of n.notes.sort((a, b) => a.title.localeCompare(b.title)))
         out += `<button class="note ${note.kind === "map" ? "auto" : ""} ${S.current === note.path ? "on" : ""}" data-path="${esc(note.path)}" title="${esc(note.path)}">${esc(note.title)}</button>`;
       return out;
@@ -79,26 +101,45 @@
       d.open ? open.add(d.dataset.path) : open.delete(d.dataset.path); localSet("open", JSON.stringify([...open]));
     }));
   }
-  $("#tree").addEventListener("click", e => { const b = e.target.closest(".note"); if (b) openNote(b.dataset.path); });
+  $("#tree").addEventListener("click", e => { const b = e.target.closest(".note"); if (b) { openNote(b.dataset.path); $("#side").classList.remove("open"); } });
 
   /* ---------- home ---------- */
+  let homeNv = null;
   function renderHome() {
     $("#editor").classList.add("hidden"); $("#home").classList.remove("hidden");
     const s = S.stats, proj = s.projects;
+    if (homeNv) { homeNv.destroy(); homeNv = null; }
+    const recent = [...S.tree].sort((a, b) => b.mtime - a.mtime).slice(0, 6);
+    const ago = t => { const d = (Date.now() / 1000 - t) / 60; return d < 1 ? "ahora" : d < 60 ? `hace ${d | 0} min` : d < 1440 ? `hace ${d / 60 | 0} h` : `hace ${d / 1440 | 0} d`; };
     $("#home").innerHTML = `
-      <div class="hero"><div id="heroBuddy"></div><div><h1>Tu cajón está listo</h1>
-      <p>Claude guarda aquí lo que aprende de tus proyectos y te devuelve solo lo necesario. Menos tokens, cero releer.</p></div></div>
+      <div class="hero"><div id="heroBuddy"></div><div><h1>${WEB ? "Çekmecón en tu navegador" : "Tu cajón está listo"}</h1>
+      <p>${WEB ? "Sin instalar nada. Tus notas viven en este navegador y funcionan sin conexión. Exporta un .zip cuando quieras llevarlas a la app de escritorio u Obsidian."
+        : "Claude guarda aquí lo que aprende de tus proyectos y te devuelve solo lo necesario. Menos tokens, cero releer."}</p></div></div>
+      <div class="neuro-card"><div class="neuro-mini" id="homeNeuro"></div>
+        <div class="neuro-cta"><small>Neuronas</small><b>Tu memoria, viva</b><span class="muted">Cada nota es un racimo de partículas; cada enlace, una sinapsis que se enciende. Seis formas: cerebro, red, galaxia, clústeres, rueda y corriente.</span>
+        <button class="primary" id="homeNeuroBtn">🧠 Abrir Neuronas</button></div></div>
+      ${recent.length ? `<h3>Recientes</h3><div class="recent">${recent.map(n => `<button class="rec" data-path="${esc(n.path)}"><b>${esc(n.title)}</b><small>${esc(n.path.split("/").slice(0, -1).join(" / ") || "raíz")} · ${ago(n.mtime)}</small></button>`).join("")}</div>` : ""}
       <div class="cards">
         <div class="card"><b>${s.notes}</b><span>notas</span></div><div class="card"><b>${proj.length}</b><span>cajones de proyecto</span></div>
-        <div class="card"><b>${s.links}</b><span>enlaces</span></div><div class="card"><b>${S.clients ? S.clients.length : 0}</b><span>conexiones de Claude</span></div></div>
+        <div class="card"><b>${s.links}</b><span>enlaces</span></div><div class="card local-only"><b>${S.clients ? S.clients.length : 0}</b><span>conexiones de Claude</span></div></div>
       <h3>Proyectos</h3>
       <div class="projects">${proj.map(p => `<button class="proj" data-path="Projects/${esc(p)}/README.md"><b>🧻 ${esc(p)}</b><small>brief · mapa · decisiones · lecciones</small></button>`).join("") || '<p class="muted">Aún no hay proyectos. Se crean solos la primera vez que Claude trabaja en uno.</p>'}</div>
-      <h3>Conectar con Claude</h3>
+      ${WEB ? `<h3>Llévalo a tu PC</h3>
+      <ol class="steps"><li><b>⬇ Exportar</b> baja todas tus notas en un .zip de Markdown.</li>
+      <li>Instala la <a href="https://lukoffmon.github.io/HighPerformanceClaude/cekmecon/#instalar" target="_blank" rel="noopener">app de escritorio</a> (Windows, macOS o Linux) y descomprime el .zip en tu carpeta <code>Cekmecon</code>.</li>
+      <li>La app de escritorio es la que se conecta con Claude Code. Esta versión web es para leer, escribir y explorar desde cualquier lado.</li></ol>
+      <p class="muted small-print">Guardado: ${CekmeconWeb.persistent() ? "en este navegador (IndexedDB)" : "solo en memoria: este navegador bloquea el almacenamiento, exporta antes de cerrar"} · <button class="linkish" id="resetWeb">Restablecer el cajón de ejemplo</button></p>`
+      : `<h3>Conectar con Claude</h3>
       <ol class="steps"><li>En una terminal: <code>cekmecon connect</code> (solo una vez).</li>
       <li>Abre Claude Code en tu proyecto, en esta computadora, y pídele cualquier cosa.</li>
-      <li>Aparecerá un aviso aquí: pulsa <b>Permitir siempre</b>. Desde entonces Claude entra solo.</li></ol>`;
+      <li>Aparecerá un aviso aquí: pulsa <b>Permitir siempre</b>. Desde entonces Claude entra solo.</li></ol>
+      <p class="muted small-print">¿Lejos de tu PC? Abre la <a href="https://lukoffmon.github.io/HighPerformanceClaude/cekmecon/app/" target="_blank" rel="noopener">versión web</a> (necesita internet la primera vez; luego funciona offline).</p>`}`;
     Rollito.mount($("#heroBuddy"), { size: 92, sleepAfter: 0 }).mood("wave", 0);
-    $("#home").querySelectorAll(".proj").forEach(b => b.onclick = () => openNote(b.dataset.path));
+    $("#home").querySelectorAll(".proj, .rec").forEach(b => b.onclick = () => openNote(b.dataset.path));
+    $("#homeNeuroBtn").onclick = openNeuronas;
+    const rs = $("#resetWeb");
+    if (rs) rs.onclick = async () => { if (confirm("¿Borrar las notas de este navegador y volver al cajón de ejemplo? (Exporta antes si quieres guardarlas)")) { await CekmeconWeb.reset(); S.current = null; await load(); } };
+    api("/api/graph").then(g => { if (!$("#homeNeuro")) return; homeNv = Neuronas.mount($("#homeNeuro"), { data: g, compact: true, form: "cerebro", onOpen: openNote }); }).catch(() => { });
   }
 
   /* ---------- editor ---------- */
@@ -110,6 +151,7 @@
       const open = new Set(JSON.parse(localGet("open") || '["Inbox","Projects"]'));
       path.split("/").slice(0, -1).forEach((_, i, a) => open.add(a.slice(0, i + 1).join("/")));
       localSet("open", JSON.stringify([...open]));
+      if (homeNv) { homeNv.destroy(); homeNv = null; }
       $("#home").classList.add("hidden"); $("#editor").classList.remove("hidden");
       $("#src").value = n.text;
       const parts = path.split("/");
@@ -207,6 +249,16 @@
     const title = prompt("Título de la nota:"); if (!title) return;
     const r = await api("/api/note/new", { title, folder: "Inbox" }); await load(); await openNote(r.path); setMode("edit");
   };
+  $("#dailyBtn").onclick = async () => {
+    try { const r = await api("/api/daily", {}); await load(); await openNote(r.path); setMode("split"); say("Tu nota de hoy está lista. Escribe lo que quieras recordar.", "write"); }
+    catch (e) { toast(e.message); }
+  };
+  $("#importBtn").onclick = () => $("#importInput").click();
+  $("#importInput").onchange = async e => {
+    const n = await CekmeconWeb.importFiles(e.target.files); e.target.value = "";
+    await load(); toast(`Importé ${n} nota${n === 1 ? "" : "s"}`);
+  };
+  $("#exportBtn").onclick = () => { const n = CekmeconWeb.exportZip(); toast(`Exportando ${n} notas…`); };
   $("#organizeBtn").onclick = async () => {
     say("Ordenando cajones…", "work", 0);
     try { const r = await api("/api/organize", {}); await load(); say(`Listo: ${r.moved.length} movidas, ${r.linked} enlazadas, ${r.deduped} duplicados fuera.`, "celebrate"); }
@@ -245,48 +297,24 @@
     if (mod && e.key.toLowerCase() === "k") { e.preventDefault(); openPalette(); }
     if (mod && e.key.toLowerCase() === "s") { e.preventDefault(); save(); }
     if (mod && e.key.toLowerCase() === "n") { e.preventDefault(); $("#newBtn").onclick(); }
+    if (e.altKey && e.code === "KeyD") { e.preventDefault(); $("#dailyBtn").onclick(); }
+    if (e.altKey && e.code === "KeyG") { e.preventDefault(); openNeuronas(); }
     if (e.key === "Escape") document.querySelectorAll(".overlay:not(#pair)").forEach(o => o.classList.add("hidden"));
   });
 
-  /* ---------- graph ---------- */
-  $("#graphBtn").onclick = async () => { $("#graph").classList.remove("hidden"); drawGraph(await api("/api/graph")); };
-  function drawGraph(g) {
-    const cv = $("#graphCanvas"), dpr = devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
-    cv.width = W * dpr; cv.height = H * dpr;
-    const ctx = cv.getContext("2d"); ctx.scale(dpr, dpr);
-    const css = getComputedStyle(document.documentElement);
-    const col = { ink: css.getPropertyValue("--ink"), line: css.getPropertyValue("--line"), acc: css.getPropertyValue("--accent"), muted: css.getPropertyValue("--muted") };
-    const projects = [...new Set(g.nodes.map(n => n.project).filter(Boolean))];
-    const hue = p => p ? 95 + (projects.indexOf(p) * 47) % 120 : 150;
-    const nodes = g.nodes.map((n, i) => ({ ...n, x: W / 2 + Math.cos(i) * (80 + i * 3), y: H / 2 + Math.sin(i) * (80 + i * 3), vx: 0, vy: 0, deg: 0 }));
-    const idx = new Map(nodes.map((n, i) => [n.id, i]));
-    const edges = g.edges.map(e => [idx.get(e.source), idx.get(e.target)]).filter(([a, b]) => a !== undefined && b !== undefined);
-    edges.forEach(([a, b]) => { nodes[a].deg++; nodes[b].deg++; });
-    let frame = 0, hover = null;
-    function step() {
-      for (let i = 0; i < nodes.length; i++) for (let j = i + 1; j < nodes.length; j++) {
-        const a = nodes[i], b = nodes[j]; let dx = a.x - b.x, dy = a.y - b.y, d2 = dx * dx + dy * dy + .01;
-        const f = 900 / d2; a.vx += dx * f; a.vy += dy * f; b.vx -= dx * f; b.vy -= dy * f;
-      }
-      for (const [i, j] of edges) { const a = nodes[i], b = nodes[j], dx = b.x - a.x, dy = b.y - a.y; a.vx += dx * .012; a.vy += dy * .012; b.vx -= dx * .012; b.vy -= dy * .012; }
-      for (const n of nodes) { n.vx += (W / 2 - n.x) * .004; n.vy += (H / 2 - n.y) * .004; n.x += n.vx *= .82; n.y += n.vy *= .82; }
-    }
-    function draw() {
-      ctx.clearRect(0, 0, W, H);
-      ctx.strokeStyle = col.line; ctx.lineWidth = 1.2;
-      for (const [i, j] of edges) { ctx.beginPath(); ctx.moveTo(nodes[i].x, nodes[i].y); ctx.lineTo(nodes[j].x, nodes[j].y); ctx.stroke(); }
-      for (const n of nodes) {
-        const r = 4 + Math.min(n.deg, 10) * 1.2;
-        ctx.fillStyle = n === hover ? col.acc : `hsl(${hue(n.project)} 55% 45%)`;
-        ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, 7); ctx.fill();
-        if (n === hover || n.deg > 2 || nodes.length < 40) { ctx.fillStyle = col.ink; ctx.font = "12px system-ui"; ctx.fillText(n.title, n.x + r + 3, n.y + 4); }
-      }
-    }
-    (function loop() { if (frame++ < 260) step(); draw(); if (!$("#graph").classList.contains("hidden")) requestAnimationFrame(loop); })();
-    const pick = e => { const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; return nodes.find(n => (n.x - x) ** 2 + (n.y - y) ** 2 < 140); };
-    cv.onmousemove = e => { hover = pick(e); cv.style.cursor = hover ? "pointer" : "default"; };
-    cv.onclick = e => { const n = pick(e); if (n) { $("#graph").classList.add("hidden"); openNote(n.id); } };
+  /* ---------- neuronas ---------- */
+  let nv = null;
+  async function openNeuronas() {
+    $("#graph").classList.remove("hidden");
+    const g = await api("/api/graph");
+    const close = () => $("#graph").classList.add("hidden");
+    if (!nv) nv = Neuronas.mount($("#neuroMount"), { data: g, form: localGet("nvform") || "cerebro", color: localGet("nvcolor") || "project", title: WEB ? "web" : "local",
+      onOpen: id => { close(); openNote(id); }, onClose: close, onChange: st => { localSet("nvform", st.form); localSet("nvcolor", st.color); } });
+    else nv.setData(g);
+    say(`Tu memoria: ${g.nodes.length} notas y ${g.edges.length} enlaces. Arrastra para girar, clic en una neurona para abrirla.`, "think");
   }
+  $("#graphBtn").onclick = openNeuronas;
+  $("#graph").addEventListener("click", e => { if (e.target.id === "graph") $("#graph").classList.add("hidden"); });
 
   /* ---------- pairing ---------- */
   let pairBuddy;
@@ -319,6 +347,11 @@
   }
   let refreshTimer;
   function connectEvents() {
+    if (WEB) {
+      CekmeconWeb.onEvent(ev => { addEvent(ev); say(ev.text, ev.mood); });
+      if ("serviceWorker" in navigator && window.isSecureContext && location.protocol !== "file:") navigator.serviceWorker.register("sw.js").catch(() => { });
+      return;
+    }
     const es = new EventSource("/api/events?k=" + encodeURIComponent(KEY));
     es.onmessage = m => {
       const ev = JSON.parse(m.data);
@@ -332,6 +365,21 @@
   }
   window.addEventListener("beforeunload", () => { if (S.dirty) save(); });
 
-  load().then(() => { connectEvents(); say("¡Hola! Soy Rollito. Te aviso de todo lo que Claude haga en tu cajón.", "wave"); })
+  /* desktop app + internet: tell the user once a day when a newer version exists (fails silently offline) */
+  function checkUpdate(version) {
+    if (WEB || navigator.onLine === false || !/^\d+\.\d+\.\d+$/.test(version || "")) return;
+    const last = +localGet("updcheck") || 0; if (Date.now() - last < 864e5) return;
+    localSet("updcheck", String(Date.now()));
+    fetch("https://api.github.com/repos/LukOffMon/HighPerformanceClaude/releases/latest", { headers: { Accept: "application/vnd.github+json" } })
+      .then(r => r.ok ? r.json() : null).then(j => {
+        const m = j && String(j.tag_name || "").match(/(\d+)\.(\d+)\.(\d+)/); if (!m) return;
+        const a = m.slice(1).map(Number), b = version.split(".").map(Number);
+        if (a[0] > b[0] || (a[0] === b[0] && (a[1] > b[1] || (a[1] === b[1] && a[2] > b[2]))))
+          say(`Hay una versión nueva de Çekmecón (${m.slice(1).join(".")}). Descárgala desde la web cuando quieras.`, "celebrate");
+      }).catch(() => { });
+  }
+
+  netStatus();
+  load().then(st => { connectEvents(); say(WEB ? "¡Hola! Soy Rollito. Esta es la versión web: todo se guarda en este navegador." : "¡Hola! Soy Rollito. Te aviso de todo lo que Claude haga en tu cajón.", "wave"); checkUpdate(st && st.version); })
     .catch(e => say("No pude cargar el cajón: " + e.message, "alert", 0));
 })();

@@ -4,7 +4,7 @@
 
 **La app de escritorio que le da memoria a Claude.** Un cajón (*çekmece* en turco) de notas Markdown que Claude ordena solo, para que nunca tenga que releer todo desde cero.
 
-Sitio: https://lukoffmon.github.io/HighPerformanceClaude/cekmecon/
+Sitio: https://lukoffmon.github.io/HighPerformanceClaude/cekmecon/ · **Versión web (sin instalar, funciona offline):** https://lukoffmon.github.io/HighPerformanceClaude/cekmecon/app/
 
 ## Descargar (recomendado)
 
@@ -38,10 +38,17 @@ Desde entonces cada sesión en esa PC entra sola. Si la app está cerrada, el pu
 
 - **Un cajón por proyecto**, creado solo la primera vez que Claude trabaja ahí: `README.md` (brief), `Map.md` (stack, comandos y estructura, regenerado cada vez), `Decisions.md`, `Lessons.md`, `Tasks.md`, `Log.md`.
 - **Paquetes de memoria con tope de tokens**: perfil + brief + mapa + tareas abiertas + decisiones recientes + lecciones + notas que coinciden con la tarea, en ~1.500 tokens.
-- **Búsqueda con ranking** (SQLite FTS5 / BM25, sin acentos), enlaces `[[wiki]]`, #etiquetas, enlaces entrantes y grafo.
+- **Búsqueda con ranking** (SQLite FTS5 / BM25, sin acentos), enlaces `[[wiki]]`, #etiquetas y enlaces entrantes.
+- **Neuronas** (`Alt+G`): tu memoria como red viva de partículas. Seis formas que se transforman entre sí (cerebro 3D, red de fuerzas, galaxia, clústeres, rueda temporal, corriente), sinapsis que se encienden por los enlaces, color por proyecto/carpeta/tipo/edad, buscar y resaltar, aislar un espacio, clic para abrir la nota.
+- **Nota del día** (`Alt+D`): `Inbox/Diario/AAAA-MM-DD.md` con notas y tareas; nunca sobrescribe un día existente.
+- **Inicio** con vista previa de Neuronas y notas recientes; tema claro/oscuro/automático; ventana adaptada al móvil.
 - **Organizar**: reparte el Inbox al cajón correcto, enlaza notas relacionadas que escribió Claude y quita lecciones duplicadas. Nunca reescribe tus notas a mano; nunca borra (archiva).
 - **Rollito**, el asistente pixel art que siempre está en pantalla y narra lo que Claude hace: trabaja, lee, escribe, piensa, celebra, alerta y duerme.
 - Compatible con **Obsidian**: `cekmecon --vault "ruta/a/tu/boveda"`. Los cambios hechos fuera se reindexan solos.
+
+### Versión web
+
+La misma ventana corre en el navegador (`docs/cekmecon/app/`, publicada en GitHub Pages) sobre `ui/webstore.js`, que implementa la API local dentro del navegador: notas en IndexedDB, búsqueda, enlaces, Neuronas, nota del día, **importar** una carpeta de `.md` y **exportar** todo en un `.zip`. Es una PWA: tras la primera visita funciona sin conexión y se puede instalar. No habla con la app de escritorio (que rechaza otros orígenes a propósito); para conectar Claude usa la app de escritorio.
 
 ### Herramientas MCP
 
@@ -61,6 +68,7 @@ Desde entonces cada sesión en esa PC entra sola. Si la app está cerrada, el pu
 - Escucha solo en `127.0.0.1`; rechaza cabeceras `Host` ajenas (DNS rebinding), peticiones con `Origin` de otros sitios y POST que no sean JSON.
 - La ventana usa una clave por proceso incrustada en la página; Claude usa un token que solo se emite cuando pulsas Permitir. “Siempre” guarda el hash del token en `~/.cekmecon/clients.json`; “Solo esta sesión” lo guarda en memoria.
 - Solo escribe archivos `.md` dentro de la bóveda; rutas con `..` o carpetas internas se rechazan.
+- Única salida a internet: si hay conexión, la ventana consulta una vez al día la última versión publicada en GitHub (sin enviar datos tuyos).
 
 ## Comandos
 
@@ -83,4 +91,4 @@ PYTHONPATH=apps/cekmecon python3 -m cekmecon      # ejecutar desde el código
 
 Compilar el programa para tu sistema: `pip install pyinstaller && python3 apps/cekmecon/packaging/build.py` (en Windows también Inno Setup 6).
 
-`cekmecon/ui/` es la ventana (HTML/CSS/JS sin build). `cekmecon/skill/SKILL.md` es una copia de `skills/cekmecon/SKILL.md` (el validador comprueba que sean iguales).
+`cekmecon/ui/` es la ventana (HTML/CSS/JS sin build): `app.js` (ventana), `neurons.js` (Neuronas, también usada por el sitio), `webstore.js` (backend en el navegador para la versión web), `mascot.js` (Rollito). `python3 tools/build_site.py` publica la versión web en `docs/cekmecon/app/`. `cekmecon/skill/SKILL.md` es una copia de `skills/cekmecon/SKILL.md` (el validador comprueba que sean iguales).

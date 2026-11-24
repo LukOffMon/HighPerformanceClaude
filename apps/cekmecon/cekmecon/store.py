@@ -234,14 +234,15 @@ class Vault:
 
     def graph(self) -> dict:
         with self.lock:
-            notes = self.db.execute("select path, title, project, kind from notes").fetchall()
+            notes = self.db.execute("select path, title, project, kind, mtime, size, tags from notes").fetchall()
             links = self.db.execute("select src, dst from links").fetchall()
         by_name = {}
-        for p, t, _, _ in notes:
+        for p, t, *_ in notes:
             by_name[t.lower()] = p
             by_name[Path(p).stem.lower()] = p
         edges = [(s, by_name[d.lower()]) for s, d in links if d.lower() in by_name and by_name[d.lower()] != s]
-        nodes = [{"id": p, "title": t, "project": pr, "kind": k} for p, t, pr, k in notes]
+        nodes = [{"id": p, "title": t, "project": pr, "kind": k, "folder": p.split("/")[0] if "/" in p else "",
+                  "mtime": round(m or 0), "size": sz or 0, "tags": tg or ""} for p, t, pr, k, m, sz, tg in notes]
         return {"nodes": nodes, "edges": [{"source": s, "target": t} for s, t in sorted(set(edges))]}
 
     def search(self, q: str, limit: int = 10, project: str = "") -> list:
@@ -309,6 +310,16 @@ class Vault:
         meta.setdefault("created", now())
         content = render_front(meta) + f"# {title}\n\n{body.strip()}\n"
         return self.write(self.rel(p), content)
+
+    def daily(self, day: str = "") -> str:
+        """Today's note (Inbox/Diario/YYYY-MM-DD.md), created on first use. Returns its path."""
+        day = day or today()
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", day):
+            raise ValueError("day must be YYYY-MM-DD")
+        rel = f"Inbox/Diario/{day}.md"
+        if not self.safe(rel).exists():
+            self.write(rel, render_front({"kind": "daily", "created": now()}) + f"# {day}\n\n## Notas\n\n- \n\n## Tareas\n\n- [ ] \n")
+        return rel
 
     def move(self, rel: str, dest_folder: str) -> str:
         src = self.safe(rel)

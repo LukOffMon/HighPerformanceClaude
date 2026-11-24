@@ -44,7 +44,20 @@ class VaultTests(unittest.TestCase):
         hits = v.search("google auth")
         self.assertEqual(hits[0]["path"], a)
         self.assertIn("Knowledge/Auth with Google.md", v.backlinks("Knowledge/Session cookies.md"))
-        self.assertEqual(len(v.graph()["edges"]), 1)
+        g = v.graph()
+        self.assertEqual(len(g["edges"]), 1)
+        node = next(n for n in g["nodes"] if n["id"] == a)  # fields Neuronas draws with
+        self.assertEqual(node["folder"], "Knowledge")
+        self.assertGreater(node["mtime"], 0)
+        self.assertGreater(node["size"], 0)
+        self.assertIn("auth", node["tags"])
+        d = v.daily("2026-01-02")
+        self.assertEqual(d, "Inbox/Diario/2026-01-02.md")
+        v.write(d, v.read(d) + "\nescrito a mano\n")
+        self.assertEqual(v.daily("2026-01-02"), d)  # never overwrites an existing day
+        self.assertIn("escrito a mano", v.read(d))
+        with self.assertRaises(ValueError):
+            v.daily("../../x")
         with self.assertRaises(ValueError):
             v.write("../evil.md", "x")
         with self.assertRaises(ValueError):
@@ -107,6 +120,13 @@ class AppAndBridgeTests(unittest.TestCase):
         self.assertIn("# Hola", n["text"])
         code, st = self.ui("GET", "/api/state")
         self.assertTrue(any(t["path"] == r["path"] for t in st["tree"]))
+        code, d = self.ui("POST", "/api/daily", {})
+        self.assertEqual(code, 200)
+        self.assertTrue(d["path"].startswith("Inbox/Diario/"))
+        code, g = self.ui("GET", "/api/graph")
+        self.assertTrue(any(n["id"] == d["path"] and n["kind"] == "daily" for n in g["nodes"]))
+        for asset in ("neurons.js", "webstore.js", "app.js"):
+            self.assertEqual(req("GET", self.port, "/ui/" + asset)[0], 200)
 
     def test_mcp_bridge_pairs_once_then_is_automatic(self):
         env = {**os.environ, "PYTHONPATH": str(ROOT), "CEKMECON_PAIR_WAIT": "20"}
