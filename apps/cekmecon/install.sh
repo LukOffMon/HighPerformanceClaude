@@ -4,7 +4,7 @@
 # Installs into its own virtualenv, adds `cekmecon` to ~/.local/bin, an app launcher, connects Claude Code and opens it.
 #   install.sh --uninstall   remove the app (your notes in ~/Cekmecon are kept)
 set -euo pipefail
-SRC="https://github.com/LukOffMon/HighPerformanceClaude/archive/refs/heads/main.zip#subdirectory=apps/cekmecon"
+SRC="https://github.com/LukOffMon/HighPerformanceClaude/archive/refs/heads/${CEKMECON_REF:-main}.zip#subdirectory=apps/cekmecon"   # CEKMECON_REF=branch to install another branch
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd || true)"
 [[ -f "$HERE/pyproject.toml" ]] && SRC="$HERE"
 APPDIR="${XDG_DATA_HOME:-$HOME/.local/share}/cekmecon"

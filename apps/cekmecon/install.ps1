@@ -4,7 +4,8 @@
 $ErrorActionPreference = "Stop"
 $Name = "GeekMcON"
 $OldName = [string][char]0x00C7 + "ekmec" + [char]0x00F3 + "n"  # shortcuts from versions before 1.2
-$Src = "https://github.com/LukOffMon/HighPerformanceClaude/archive/refs/heads/main.zip#subdirectory=apps/cekmecon"
+$Ref = if ($env:CEKMECON_REF) { $env:CEKMECON_REF } else { "main" }   # set CEKMECON_REF to install another branch
+$Src = "https://github.com/LukOffMon/HighPerformanceClaude/archive/refs/heads/$Ref.zip#subdirectory=apps/cekmecon"
 if ($PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "pyproject.toml"))) { $Src = $PSScriptRoot }
 
 function Find-Python {
