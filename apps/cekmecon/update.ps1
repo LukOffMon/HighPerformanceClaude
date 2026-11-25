@@ -27,9 +27,11 @@ Invoke-WebRequest $asset.browser_download_url -OutFile $setup -UseBasicParsing
 
 Write-Host "-> Closing GeekMcON and installing $latest"
 Get-Process -Name "Cekmecon", "cekmecon-cli" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-Start-Process -FilePath $setup -ArgumentList "/SILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -Wait
+# Wait for the installer only: Start-Process -Wait would also wait for the app it reopens (Windows PowerShell 5.1).
+$p = Start-Process -FilePath $setup -ArgumentList "/SILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -PassThru
+$p.WaitForExit()
 Remove-Item $setup -ErrorAction SilentlyContinue
 
 & (Join-Path $Dir "cekmecon-cli.exe") connect | Out-Null
-Start-Process (Join-Path $Dir "Cekmecon.exe")
+if (-not (Get-Process -Name "Cekmecon" -ErrorAction SilentlyContinue)) { Start-Process (Join-Path $Dir "Cekmecon.exe") }
 Write-Host "Done. GeekMcON $latest is open. Restart Claude Code so it uses the new version." -ForegroundColor Green
