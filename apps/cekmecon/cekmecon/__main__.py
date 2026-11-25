@@ -6,6 +6,7 @@
   cekmecon connect              register GeekMcON with Claude Code (user scope) and install its skill
   cekmecon disconnect           remove it from Claude Code and forget the saved token
   cekmecon status               is the app running, which vault, which clients are allowed
+  cekmecon update [--check]     update to the latest release (the same version as the web app)
   cekmecon mcp                  the MCP stdio server Claude Code launches (you never run this by hand)
 """
 from __future__ import annotations
@@ -88,7 +89,9 @@ def main(argv=None) -> int:
         except (AttributeError, ValueError):
             pass
     ap = argparse.ArgumentParser(prog="cekmecon", description=f"{APP_NAME}: Claude's local memory drawer.")
-    ap.add_argument("command", nargs="?", default="open", choices=["open", "mcp", "connect", "disconnect", "status"])
+    ap.add_argument("command", nargs="?", default="open", choices=["open", "mcp", "connect", "disconnect", "status", "update"])
+    ap.add_argument("--check", action="store_true", help="update: only say whether a newer version exists")
+    ap.add_argument("--force", action="store_true", help="update: reinstall even if already up to date")
     ap.add_argument("--no-window", action="store_true", help="run without opening the window")
     ap.add_argument("--vault", default="", help="vault folder to use from now on")
     ap.add_argument("--port", type=int, default=DEFAULT_PORT)
@@ -108,6 +111,9 @@ def main(argv=None) -> int:
         return disconnect()
     if a.command == "status":
         return status()
+    if a.command == "update":
+        from .update import run
+        return run(check_only=a.check, force=a.force)
     from .server import serve
     serve(a.port, window=not a.no_window)
     return 0

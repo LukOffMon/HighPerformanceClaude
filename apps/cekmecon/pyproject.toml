@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cekmecon"
-version = "1.2.0"
+version = "1.2.1"
 description = "GeekMcON (formerly Çekmecón): a local memory drawer that Claude organizes for you (Markdown vault + MCP)."
 readme = "README.md"
 requires-python = ">=3.9"

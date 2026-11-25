@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.1] — 2026-11-25
+### Fixed
+- **GeekMcON downloads were stuck on 1.0.0** while the web app was already on 1.2: the release run on `main` failed because no macOS runner was assigned, so no release was published. The macOS build no longer blocks the release (`continue-on-error`, 30 min timeout); when it is missing, the release reuses the previous `Cekmecon-macOS.dmg`. Version 1.2.1 republishes the downloads.
+### Added
+- **`cekmecon update`** (`--check`, `--force`): updates the local app to the latest GitHub Release — runs the Windows installer silently (it closes and reopens the app), opens the macOS DMG, runs `install-linux.sh`, or upgrades a pip install.
+- **`apps/cekmecon/update.ps1`**: one-line updater for Windows that works for every installed version, including 1.0: `irm https://raw.githubusercontent.com/LukOffMon/HighPerformanceClaude/main/apps/cekmecon/update.ps1 | iex`.
+- The in-app "new version" notice and the site's download sheet now show the update command.
+
 ## [1.5.0] — 2026-11-24
 ### Changed
 - **Çekmecón is now GeekMcON** everywhere you see it: window, web app, site, installers (Start Menu/Desktop shortcut, macOS app and DMG name, Linux menu entry), README and skill (which still triggers on the old name). Technical identifiers stay the same so nothing breaks: the `cekmecon` command, the `cekmecon_*` MCP tools and their saved permissions, `~/Cekmecon`, `~/.cekmecon`, download file names and site URLs. Installers remove the old "Çekmecón" shortcuts/app; new `geekmcon` command alias.

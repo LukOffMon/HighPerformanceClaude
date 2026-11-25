@@ -479,7 +479,7 @@
         const m = j && String(j.tag_name || "").match(/(\d+)\.(\d+)\.(\d+)/); if (!m) return;
         const a = m.slice(1).map(Number), b = version.split(".").map(Number);
         if (a[0] > b[0] || (a[0] === b[0] && (a[1] > b[1] || (a[1] === b[1] && a[2] > b[2]))))
-          say(`Hay una versión nueva de GeekMcON (${m.slice(1).join(".")}). Descárgala desde la web cuando quieras.`, "celebrate");
+          say(`Hay una versión nueva de GeekMcON (${m.slice(1).join(".")}). Para actualizar, en PowerShell: irm https://raw.githubusercontent.com/LukOffMon/HighPerformanceClaude/main/apps/cekmecon/update.ps1 | iex  (o en la terminal: cekmecon update)`, "celebrate");
       }).catch(() => { });
   }
 

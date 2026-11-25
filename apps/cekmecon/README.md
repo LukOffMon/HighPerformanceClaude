@@ -18,6 +18,16 @@ Sitio: https://lukoffmon.github.io/HighPerformanceClaude/cekmecon/ · **Versión
 
 Programa autónomo: no necesita Python. Al abrirlo por primera vez se registra solo en Claude Code. Los binarios los compila `.github/workflows/cekmecon-release.yml` (PyInstaller + Inno Setup) y se publican en GitHub Releases en cada push a `main`.
 
+## Actualizar
+
+La app local y la [versión web](https://lukoffmon.github.io/HighPerformanceClaude/cekmecon/app/) usan la misma interfaz; si la local se ve distinta, es una versión vieja. Actualízala (tus notas no se tocan):
+
+| Sistema | Comando |
+|---|---|
+| Windows (PowerShell, cualquier versión) | `irm https://raw.githubusercontent.com/LukOffMon/HighPerformanceClaude/main/apps/cekmecon/update.ps1 \| iex` |
+| Cualquiera, desde 1.2.1 | `cekmecon update` (`--check` solo avisa; `--force` reinstala) |
+| macOS / Linux instalados desde el código | vuelve a ejecutar `install.sh` |
+
 ## Instalar desde el código (alternativa)
 
 | Sistema | Comando |

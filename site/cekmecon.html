@@ -62,6 +62,7 @@ body.open .hero .sub, body.open .hero .name-note, body.open .hero .kicker, body.
 .dl:hover, .dl.mine { border-color: #2fae5f; }
 .dl b { display: block; } .dl small { color: var(--ink-soft); }
 details.alt { margin-top: 12px; } details.alt summary { cursor: pointer; font-weight: 600; color: #1f6b40; margin-bottom: 6px; }
+.upd { margin-top: 14px; padding: 12px 14px; border: 1px dashed #1f6b40; border-radius: 12px; } .upd p { margin: 6px 0; }
 body.open h1 { font-size: clamp(26px, 4vw, 40px); margin: 0 0 4px; }
 body.open h1 .c { display: inline; font-size: 1em; }
 
@@ -352,6 +353,11 @@ body.open .float-buddy { opacity: 1; transform: none; pointer-events: auto; }
         <li>Abre <b>GeekMcON</b> desde el menú Inicio, el Launchpad o tu menú de aplicaciones. Rollito te saluda y la app se registra sola en Claude Code.</li>
         <li>Listo. Ve a la hoja siguiente para darle permiso a Claude.</li>
       </ol>
+      <div class="upd">
+        <p><b>¿Ya lo tienes instalado?</b> Actualízalo a la última versión (la misma que la <a href="app/">versión web</a>) sin perder tus notas. Pega esto en PowerShell:</p>
+        <div class="cmd"><code>irm https://raw.githubusercontent.com/LukOffMon/HighPerformanceClaude/main/apps/cekmecon/update.ps1 | iex</code><button class="copy">Copiar</button></div>
+        <p>Desde la 1.2.1 también basta con <code>cekmecon update</code> en cualquier terminal (Windows, macOS y Linux); <code>cekmecon update --check</code> solo te dice si hay versión nueva.</p>
+      </div>
       <details class="alt"><summary>¿Prefieres la terminal? (instala desde el código, necesita Python 3.9+)</summary>
       <div class="tabs" role="tablist" aria-label="Sistema operativo">
         <button role="tab" id="tab-win" aria-selected="true" aria-controls="p-win">Windows</button>

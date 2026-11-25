@@ -45,6 +45,8 @@ Name: "{autodesktop}\GeekMcON"; Filename: "{app}\Cekmecon.exe"; Tasks: desktopic
 
 [Run]
 Filename: "{app}\Cekmecon.exe"; Description: "{cm:LaunchProgram,GeekMcON}"; Flags: nowait postinstall skipifsilent
+; `cekmecon update` runs this installer with /SILENT: reopen the app afterwards
+Filename: "{app}\Cekmecon.exe"; Flags: nowait runasoriginaluser; Check: WizardSilent
 
 [UninstallRun]
 Filename: "{app}\cekmecon-cli.exe"; Parameters: "disconnect"; Flags: runhidden; RunOnceId: "DisconnectClaude"

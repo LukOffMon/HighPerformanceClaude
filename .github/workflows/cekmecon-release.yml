@@ -20,6 +20,9 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-22.04]
     runs-on: ${{ matrix.os }}
+    # macOS runners are sometimes never assigned (capacity); that must not block the Windows/Linux release.
+    continue-on-error: ${{ matrix.os == 'macos-latest' }}
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -65,6 +68,14 @@ jobs:
         with:
           path: out
           merge-multiple: true
+      - name: Keep the previous macOS download if this run could not build it
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ ! -f out/Cekmecon-macOS.dmg ]; then
+            gh release download --repo "$GITHUB_REPOSITORY" --pattern Cekmecon-macOS.dmg --dir out || echo "no previous macOS build"
+          fi
+          ls -la out
       - name: Version
         id: v
         run: echo "version=$(python3 -c 'import re;print(re.search(r"__version__ = \"(.+?)\"", open("apps/cekmecon/cekmecon/__init__.py").read()).group(1))')" >> "$GITHUB_OUTPUT"
