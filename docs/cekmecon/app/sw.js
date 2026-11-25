@@ -1,6 +1,6 @@
 /* GeekMcON Web service worker: after the first visit the app opens and works with no connection.
    Stale-while-revalidate: answer from cache instantly, refresh the cache from the network when online. */
-const CACHE = "cekmecon-web-6951add457f7";
+const CACHE = "cekmecon-web-17c545a6f413";
 const CORE = ["./", "./index.html", "./manifest.webmanifest", "./ui/style.css", "./ui/app.js", "./ui/mascot.js", "./ui/neurons.js", "./ui/webstore.js", "./ui/logo.svg", "./ui/icon.png"];
 
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
